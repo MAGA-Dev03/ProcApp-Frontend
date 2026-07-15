@@ -1,0 +1,23 @@
+[
+  {
+    "id": "RFQ-1001",
+    "title": "Office chairs - Q3 restock",
+    "status": "submitted",
+    "requestedBy": "J. Perera",
+    "createdAt": "2026-07-01"
+  },
+  {
+    "id": "RFQ-1002",
+    "title": "Laptops for engineering team",
+    "status": "draft",
+    "requestedBy": "S. Fernando",
+    "createdAt": "2026-07-08"
+  },
+  {
+    "id": "RFQ-1003",
+    "title": "Warehouse forklift maintenance",
+    "status": "awarded",
+    "requestedBy": "N. Silva",
+    "createdAt": "2026-06-20"
+  }
+]
