@@ -1,0 +1,12 @@
+[
+  { "id": "SUP-001", "name": "Meridian Supply Co.", "contactName": "R. Kumarasinghe", "email": "sales@meridiansupply.lk", "phone": "+94 11 234 5001", "category": "Office Furniture", "status": "active" },
+  { "id": "SUP-002", "name": "Colombo Tech Distributors", "contactName": "T. Herath", "email": "quotes@colombotech.lk", "phone": "+94 11 234 5002", "category": "IT Equipment", "status": "active" },
+  { "id": "SUP-003", "name": "Lanka Industrial Parts", "contactName": "M. Dissanayake", "email": "info@lankaindustrial.lk", "phone": "+94 11 234 5003", "category": "Machinery & Maintenance", "status": "active" },
+  { "id": "SUP-004", "name": "Horizon Business Solutions", "contactName": "P. Wijesekera", "email": "sales@horizonbiz.lk", "phone": "+94 11 234 5004", "category": "IT Equipment", "status": "active" },
+  { "id": "SUP-005", "name": "Ceylon Facilities Services", "contactName": "H. Rathnayake", "email": "contracts@ceylonfacilities.lk", "phone": "+94 11 234 5005", "category": "Facilities & Security", "status": "active" },
+  { "id": "SUP-006", "name": "Apex Print & Stationery", "contactName": "S. Gunasekera", "email": "orders@apexprint.lk", "phone": "+94 11 234 5006", "category": "Office Supplies", "status": "active" },
+  { "id": "SUP-007", "name": "Trident Logistics", "contactName": "C. Amarasinghe", "email": "ops@tridentlogistics.lk", "phone": "+94 11 234 5007", "category": "Logistics", "status": "inactive" },
+  { "id": "SUP-008", "name": "Greenline Office Interiors", "contactName": "N. Peiris", "email": "hello@greenlineinteriors.lk", "phone": "+94 11 234 5008", "category": "Office Furniture", "status": "active" },
+  { "id": "SUP-009", "name": "Vantage IT Systems", "contactName": "D. Senanayake", "email": "sales@vantageit.lk", "phone": "+94 11 234 5009", "category": "IT Equipment", "status": "active" },
+  { "id": "SUP-010", "name": "Sapphire Security Solutions", "contactName": "L. Fonseka", "email": "contracts@sapphiresecurity.lk", "phone": "+94 11 234 5010", "category": "Facilities & Security", "status": "active" }
+]

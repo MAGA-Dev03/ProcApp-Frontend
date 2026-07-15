@@ -1,0 +1,8 @@
+[
+  { "id": "U-001", "name": "A. Ranasinghe", "email": "a.ranasinghe@maga.lk", "role": "requester", "initials": "AR" },
+  { "id": "U-002", "name": "K. Jayasuriya", "email": "k.jayasuriya@maga.lk", "role": "requester", "initials": "KJ" },
+  { "id": "U-003", "name": "D. Wickramasinghe", "email": "d.wickramasinghe@maga.lk", "role": "approver", "initials": "DW" },
+  { "id": "U-004", "name": "N. Gunawardena", "email": "n.gunawardena@maga.lk", "role": "approver", "initials": "NG" },
+  { "id": "U-005", "name": "R. Abeysekera", "email": "r.abeysekera@maga.lk", "role": "finance", "initials": "RA" },
+  { "id": "U-006", "name": "S. Fernando", "email": "s.fernando@maga.lk", "role": "finance", "initials": "SF" }
+]

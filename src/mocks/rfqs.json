@@ -1,23 +1,378 @@
 [
   {
     "id": "RFQ-1001",
-    "title": "Office chairs - Q3 restock",
-    "status": "submitted",
-    "requestedBy": "J. Perera",
-    "createdAt": "2026-07-01"
+    "title": "Office chairs — Q3 restock",
+    "projectId": "PRJ-001",
+    "requesterId": "U-001",
+    "status": "closed",
+    "createdDate": "2026-06-20",
+    "dueDate": "2026-06-30",
+    "targetSupplierIds": [
+      "SUP-001",
+      "SUP-008"
+    ],
+    "lineItems": [
+      {
+        "id": "LI-1001-1",
+        "description": "Ergonomic mesh-back office chair",
+        "quantity": 60,
+        "unit": "unit",
+        "unitPrice": 8100,
+        "amount": 486000
+      }
+    ],
+    "supplierResponses": [
+      {
+        "supplierId": "SUP-001",
+        "submittedDate": "2026-06-27",
+        "totalQuoted": 486000,
+        "status": "awarded"
+      },
+      {
+        "supplierId": "SUP-008",
+        "submittedDate": "2026-06-28",
+        "totalQuoted": 512000,
+        "status": "rejected"
+      }
+    ]
   },
   {
     "id": "RFQ-1002",
     "title": "Laptops for engineering team",
-    "status": "draft",
-    "requestedBy": "S. Fernando",
-    "createdAt": "2026-07-08"
+    "projectId": "PRJ-002",
+    "requesterId": "U-002",
+    "status": "closed",
+    "createdDate": "2026-07-01",
+    "dueDate": "2026-07-15",
+    "targetSupplierIds": [
+      "SUP-002",
+      "SUP-004",
+      "SUP-009"
+    ],
+    "lineItems": [
+      {
+        "id": "LI-1002-1",
+        "description": "14-inch business laptop, 16GB RAM / 512GB SSD",
+        "quantity": 40,
+        "unit": "unit",
+        "unitPrice": 53500,
+        "amount": 2140000
+      }
+    ],
+    "supplierResponses": [
+      {
+        "supplierId": "SUP-002",
+        "submittedDate": "2026-07-13",
+        "totalQuoted": 2185000,
+        "status": "rejected"
+      },
+      {
+        "supplierId": "SUP-004",
+        "submittedDate": "2026-07-14",
+        "totalQuoted": 2140000,
+        "status": "awarded"
+      },
+      {
+        "supplierId": "SUP-009",
+        "submittedDate": "2026-07-14",
+        "totalQuoted": 2210500,
+        "status": "rejected"
+      }
+    ]
   },
   {
     "id": "RFQ-1003",
     "title": "Warehouse forklift maintenance",
-    "status": "awarded",
-    "requestedBy": "N. Silva",
-    "createdAt": "2026-06-20"
+    "projectId": "PRJ-003",
+    "requesterId": "U-001",
+    "status": "sent",
+    "createdDate": "2026-07-08",
+    "dueDate": "2026-07-22",
+    "targetSupplierIds": [
+      "SUP-003"
+    ],
+    "lineItems": [
+      {
+        "id": "LI-1003-1",
+        "description": "Preventive maintenance service (forklift fleet, 8 units)",
+        "quantity": 8,
+        "unit": "unit",
+        "unitPrice": 18500,
+        "amount": 148000
+      }
+    ],
+    "supplierResponses": []
+  },
+  {
+    "id": "RFQ-1004",
+    "title": "Site security contract renewal",
+    "projectId": "PRJ-004",
+    "requesterId": "U-002",
+    "status": "closed",
+    "createdDate": "2026-06-01",
+    "dueDate": "2026-06-15",
+    "targetSupplierIds": [
+      "SUP-010",
+      "SUP-005"
+    ],
+    "lineItems": [
+      {
+        "id": "LI-1004-1",
+        "description": "On-site security personnel (monthly retainer)",
+        "quantity": 12,
+        "unit": "month",
+        "unitPrice": 68000,
+        "amount": 816000
+      },
+      {
+        "id": "LI-1004-2",
+        "description": "CCTV system maintenance (quarterly)",
+        "quantity": 4,
+        "unit": "quarter",
+        "unitPrice": 36050,
+        "amount": 144200
+      }
+    ],
+    "supplierResponses": [
+      {
+        "supplierId": "SUP-010",
+        "submittedDate": "2026-06-13",
+        "totalQuoted": 960200,
+        "status": "awarded"
+      },
+      {
+        "supplierId": "SUP-005",
+        "submittedDate": "2026-06-14",
+        "totalQuoted": 1005000,
+        "status": "rejected"
+      }
+    ]
+  },
+  {
+    "id": "RFQ-1005",
+    "title": "Branch office furniture — Kandy",
+    "projectId": "PRJ-005",
+    "requesterId": "U-001",
+    "status": "draft",
+    "createdDate": "2026-07-14",
+    "dueDate": null,
+    "targetSupplierIds": [
+      "SUP-001",
+      "SUP-008"
+    ],
+    "lineItems": [
+      {
+        "id": "LI-1005-1",
+        "description": "Workstation desk, 1400mm",
+        "quantity": 25,
+        "unit": "unit",
+        "unitPrice": 32000,
+        "amount": 800000
+      },
+      {
+        "id": "LI-1005-2",
+        "description": "Task chair, standard",
+        "quantity": 25,
+        "unit": "unit",
+        "unitPrice": 14200,
+        "amount": 355000
+      }
+    ],
+    "supplierResponses": []
+  },
+  {
+    "id": "RFQ-1006",
+    "title": "Print & stationery annual supply",
+    "projectId": "PRJ-001",
+    "requesterId": "U-002",
+    "status": "closed",
+    "createdDate": "2026-05-10",
+    "dueDate": "2026-05-24",
+    "targetSupplierIds": [
+      "SUP-006",
+      "SUP-001"
+    ],
+    "lineItems": [
+      {
+        "id": "LI-1006-1",
+        "description": "A4 copy paper, 80gsm (box of 5 reams)",
+        "quantity": 150,
+        "unit": "box",
+        "unitPrice": 1250,
+        "amount": 187500
+      },
+      {
+        "id": "LI-1006-2",
+        "description": "Toner cartridge, black (compatible HP LaserJet)",
+        "quantity": 50,
+        "unit": "unit",
+        "unitPrice": 2625,
+        "amount": 131250
+      }
+    ],
+    "supplierResponses": [
+      {
+        "supplierId": "SUP-006",
+        "submittedDate": "2026-05-22",
+        "totalQuoted": 318750,
+        "status": "awarded"
+      },
+      {
+        "supplierId": "SUP-001",
+        "submittedDate": "2026-05-23",
+        "totalQuoted": 334000,
+        "status": "rejected"
+      }
+    ]
+  },
+  {
+    "id": "RFQ-1007",
+    "title": "Forklift replacement parts",
+    "projectId": "PRJ-003",
+    "requesterId": "U-001",
+    "status": "closed",
+    "createdDate": "2026-06-05",
+    "dueDate": "2026-06-19",
+    "targetSupplierIds": [
+      "SUP-003"
+    ],
+    "lineItems": [
+      {
+        "id": "LI-1007-1",
+        "description": "Forklift hydraulic pump assembly",
+        "quantity": 2,
+        "unit": "unit",
+        "unitPrice": 52650,
+        "amount": 105300
+      },
+      {
+        "id": "LI-1007-2",
+        "description": "Forklift tire set (solid rubber)",
+        "quantity": 4,
+        "unit": "set",
+        "unitPrice": 10000,
+        "amount": 40000
+      }
+    ],
+    "supplierResponses": [
+      {
+        "supplierId": "SUP-003",
+        "submittedDate": "2026-06-17",
+        "totalQuoted": 145300,
+        "status": "awarded"
+      }
+    ]
+  },
+  {
+    "id": "RFQ-1008",
+    "title": "Data center rack upgrade",
+    "projectId": "PRJ-002",
+    "requesterId": "U-002",
+    "status": "closed",
+    "createdDate": "2026-06-25",
+    "dueDate": "2026-07-09",
+    "targetSupplierIds": [
+      "SUP-009",
+      "SUP-002"
+    ],
+    "lineItems": [
+      {
+        "id": "LI-1008-1",
+        "description": "42U server rack cabinet",
+        "quantity": 6,
+        "unit": "unit",
+        "unitPrice": 285000,
+        "amount": 1710000
+      },
+      {
+        "id": "LI-1008-2",
+        "description": "Rack-mount UPS 3kVA",
+        "quantity": 6,
+        "unit": "unit",
+        "unitPrice": 290000,
+        "amount": 1740000
+      }
+    ],
+    "supplierResponses": [
+      {
+        "supplierId": "SUP-009",
+        "submittedDate": "2026-07-07",
+        "totalQuoted": 3450000,
+        "status": "awarded"
+      },
+      {
+        "supplierId": "SUP-002",
+        "submittedDate": "2026-07-08",
+        "totalQuoted": 3580000,
+        "status": "rejected"
+      }
+    ]
+  },
+  {
+    "id": "RFQ-1009",
+    "title": "IT helpdesk support renewal",
+    "projectId": "PRJ-002",
+    "requesterId": "U-002",
+    "status": "responsesReceived",
+    "createdDate": "2026-06-30",
+    "dueDate": "2026-07-14",
+    "targetSupplierIds": [
+      "SUP-002",
+      "SUP-009"
+    ],
+    "lineItems": [
+      {
+        "id": "LI-1009-1",
+        "description": "Annual helpdesk support subscription (50 seats)",
+        "quantity": 50,
+        "unit": "seat",
+        "unitPrice": 9800,
+        "amount": 490000
+      }
+    ],
+    "supplierResponses": [
+      {
+        "supplierId": "SUP-002",
+        "submittedDate": "2026-07-12",
+        "totalQuoted": 495000,
+        "status": "submitted"
+      },
+      {
+        "supplierId": "SUP-009",
+        "submittedDate": "2026-07-13",
+        "totalQuoted": 502000,
+        "status": "submitted"
+      }
+    ]
+  },
+  {
+    "id": "RFQ-1010",
+    "title": "Pantry & break room supplies",
+    "projectId": "PRJ-001",
+    "requesterId": "U-002",
+    "status": "closed",
+    "createdDate": "2026-07-01",
+    "dueDate": "2026-07-10",
+    "targetSupplierIds": [
+      "SUP-006"
+    ],
+    "lineItems": [
+      {
+        "id": "LI-1010-1",
+        "description": "Pantry supplies restock (assorted)",
+        "quantity": 1,
+        "unit": "lot",
+        "unitPrice": 45000,
+        "amount": 45000
+      }
+    ],
+    "supplierResponses": [
+      {
+        "supplierId": "SUP-006",
+        "submittedDate": "2026-07-09",
+        "totalQuoted": 45000,
+        "status": "awarded"
+      }
+    ]
   }
 ]

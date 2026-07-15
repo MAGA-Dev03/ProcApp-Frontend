@@ -1,0 +1,84 @@
+[
+  {
+    "id": "PO-2001",
+    "rfqId": "RFQ-1001",
+    "supplierId": "SUP-001",
+    "projectId": "PRJ-001",
+    "status": "issued",
+    "lineItems": [
+      { "id": "LI-1001-1", "description": "Ergonomic mesh-back office chair", "quantity": 60, "unit": "unit", "unitPrice": 8100, "amount": 486000 }
+    ],
+    "totalValue": 486000,
+    "createdDate": "2026-06-28",
+    "issuedDate": "2026-07-02"
+  },
+  {
+    "id": "PO-2002",
+    "rfqId": "RFQ-1002",
+    "supplierId": "SUP-004",
+    "projectId": "PRJ-002",
+    "status": "pendingApproval",
+    "lineItems": [
+      { "id": "LI-1002-1", "description": "14-inch business laptop, 16GB RAM / 512GB SSD", "quantity": 40, "unit": "unit", "unitPrice": 53500, "amount": 2140000 }
+    ],
+    "totalValue": 2140000,
+    "createdDate": "2026-07-16",
+    "issuedDate": null
+  },
+  {
+    "id": "PO-2003",
+    "rfqId": "RFQ-1006",
+    "supplierId": "SUP-006",
+    "projectId": "PRJ-001",
+    "status": "approved",
+    "lineItems": [
+      { "id": "LI-1006-1", "description": "A4 copy paper, 80gsm (box of 5 reams)", "quantity": 150, "unit": "box", "unitPrice": 1250, "amount": 187500 },
+      { "id": "LI-1006-2", "description": "Toner cartridge, black (compatible HP LaserJet)", "quantity": 50, "unit": "unit", "unitPrice": 2625, "amount": 131250 }
+    ],
+    "totalValue": 318750,
+    "createdDate": "2026-05-26",
+    "issuedDate": null
+  },
+  {
+    "id": "PO-2004",
+    "rfqId": "RFQ-1004",
+    "supplierId": "SUP-010",
+    "projectId": "PRJ-004",
+    "status": "rejected",
+    "lineItems": [
+      { "id": "LI-1004-1", "description": "On-site security personnel (monthly retainer)", "quantity": 12, "unit": "month", "unitPrice": 68000, "amount": 816000 },
+      { "id": "LI-1004-2", "description": "CCTV system maintenance (quarterly)", "quantity": 4, "unit": "quarter", "unitPrice": 36050, "amount": 144200 }
+    ],
+    "totalValue": 960200,
+    "createdDate": "2026-06-16",
+    "issuedDate": null
+  },
+  {
+    "id": "PO-2005",
+    "rfqId": "RFQ-1007",
+    "supplierId": "SUP-003",
+    "projectId": "PRJ-003",
+    "status": "draft",
+    "lineItems": [
+      { "id": "LI-1007-1", "description": "Forklift hydraulic pump assembly", "quantity": 2, "unit": "unit", "unitPrice": 52650, "amount": 105300 },
+      { "id": "LI-1007-2", "description": "Forklift tire set (solid rubber)", "quantity": 4, "unit": "set", "unitPrice": 10000, "amount": 40000 }
+    ],
+    "totalValue": 145300,
+    "createdDate": "2026-07-10",
+    "issuedDate": null
+  },
+  {
+    "id": "PO-2006",
+    "rfqId": "RFQ-1008",
+    "supplierId": "SUP-009",
+    "projectId": "PRJ-002",
+    "status": "pendingApproval",
+    "lineItems": [
+      { "id": "LI-1008-1", "description": "42U server rack cabinet", "quantity": 6, "unit": "unit", "unitPrice": 285000, "amount": 1710000 },
+      { "id": "LI-1008-2", "description": "Rack-mount UPS 3kVA", "quantity": 6, "unit": "unit", "unitPrice": 290000, "amount": 1740000 }
+    ],
+    "totalValue": 3450000,
+    "createdDate": "2026-07-11",
+    "issuedDate": null
+  }
+]

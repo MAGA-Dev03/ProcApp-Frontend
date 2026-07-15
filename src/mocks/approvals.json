@@ -1,0 +1,17 @@
+[
+  { "id": "APR-3001", "poId": "PO-2001", "approverId": "U-003", "stepNumber": 1, "status": "approved", "decidedDate": "2026-06-29", "comments": "Standard restock, within budget." },
+
+  { "id": "APR-3002", "poId": "PO-2002", "approverId": "U-003", "stepNumber": 1, "status": "approved", "decidedDate": "2026-07-17", "comments": "Specs confirmed with engineering lead." },
+  { "id": "APR-3003", "poId": "PO-2002", "approverId": "U-004", "stepNumber": 2, "status": "pending", "decidedDate": null, "comments": null },
+  { "id": "APR-3004", "poId": "PO-2002", "approverId": "U-005", "stepNumber": 3, "status": "pending", "decidedDate": null, "comments": null },
+
+  { "id": "APR-3005", "poId": "PO-2003", "approverId": "U-003", "stepNumber": 1, "status": "approved", "decidedDate": "2026-05-27", "comments": "Vendor pricing matches contract rate card." },
+  { "id": "APR-3006", "poId": "PO-2003", "approverId": "U-005", "stepNumber": 2, "status": "approved", "decidedDate": "2026-05-29", "comments": "Within Q2 stationery budget." },
+
+  { "id": "APR-3007", "poId": "PO-2004", "approverId": "U-004", "stepNumber": 1, "status": "approved", "decidedDate": "2026-06-17", "comments": "Coverage plan meets site requirements." },
+  { "id": "APR-3008", "poId": "PO-2004", "approverId": "U-006", "stepNumber": 2, "status": "rejected", "decidedDate": "2026-06-19", "comments": "Renewal rate exceeds approved budget ceiling by 14%; requesting re-quote." },
+
+  { "id": "APR-3009", "poId": "PO-2006", "approverId": "U-003", "stepNumber": 1, "status": "pending", "decidedDate": null, "comments": null },
+  { "id": "APR-3010", "poId": "PO-2006", "approverId": "U-004", "stepNumber": 2, "status": "pending", "decidedDate": null, "comments": null },
+  { "id": "APR-3011", "poId": "PO-2006", "approverId": "U-006", "stepNumber": 3, "status": "pending", "decidedDate": null, "comments": null }
+]

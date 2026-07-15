@@ -1,0 +1,7 @@
+[
+  { "id": "PRJ-001", "name": "Head Office Refurbishment", "code": "HOR-26", "department": "Administration", "status": "active" },
+  { "id": "PRJ-002", "name": "Engineering Hardware Refresh", "code": "EHR-26", "department": "Engineering", "status": "active" },
+  { "id": "PRJ-003", "name": "Warehouse Operations Upgrade", "code": "WOU-26", "department": "Operations", "status": "active" },
+  { "id": "PRJ-004", "name": "Site Security Modernization", "code": "SSM-25", "department": "Security", "status": "completed" },
+  { "id": "PRJ-005", "name": "Branch Expansion — Kandy", "code": "BEK-26", "department": "Administration", "status": "onHold" }
+]
