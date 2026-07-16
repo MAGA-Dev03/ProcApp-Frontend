@@ -25,6 +25,13 @@ export interface ListInvoicesParams extends PageParams {
   /** Filters on receivedDate instead of invoiceDate - e.g. a month picker. */
   receivedDateFrom?: string
   receivedDateTo?: string
+  /** Exact-day match against the field named by dateType - the report screen's Date Type picker. */
+  dateType?: 'invoiceDate' | 'receivedDate' | 'grnReceivedDate' | 'financeSubmitDate'
+  dateExact?: string
+  /** Finance-processing status, independent of active/cancelled. */
+  reportStatus?: 'NOT_SUBMITTED' | 'GRN_PENDING' | 'GRN_RECEIVED' | 'SUBMITTED'
+  /** Exact match on listNo - the report screen's searchable List No filter. */
+  listNo?: string
 }
 
 export type CreateInvoicePayload = Pick<
@@ -132,6 +139,28 @@ export async function listInvoices(
   }
   if (params.receivedDateTo) {
     results = results.filter((inv) => inv.receivedDate <= params.receivedDateTo!)
+  }
+  if (params.dateType && params.dateExact) {
+    results = results.filter((inv) => inv[params.dateType!] === params.dateExact)
+  }
+  if (params.reportStatus) {
+    results = results.filter((inv) => {
+      switch (params.reportStatus) {
+        case 'NOT_SUBMITTED':
+          return !inv.grnNumber
+        case 'GRN_PENDING':
+          return Boolean(inv.grnNumber) && !inv.grnReceivedDate
+        case 'GRN_RECEIVED':
+          return Boolean(inv.grnNumber) && Boolean(inv.grnReceivedDate) && !inv.listNo
+        case 'SUBMITTED':
+          return Boolean(inv.listNo)
+        default:
+          return true
+      }
+    })
+  }
+  if (params.listNo) {
+    results = results.filter((inv) => inv.listNo === params.listNo)
   }
   if (params.search) {
     const search = params.search.toLowerCase()
@@ -311,6 +340,20 @@ export async function checkDuplicateInvoiceNumber(params: {
   return match ? { isDuplicate: true, existingInvoiceId: match.id } : { isDuplicate: false }
 }
 
+/**
+ * Atomic by construction: every invoice is looked up and validated *before* anything is mutated,
+ * so a failure partway through can never leave the batch half-applied. The old system's version of
+ * this endpoint ran a bare loop that updated each invoice as it went - a failure on, say, the 7th
+ * of 10 invoices left the first 6 submitted and the rest untouched, a well-known source of finance
+ * reconciliation headaches. The real Spring Boot endpoint must wrap the whole batch in a single
+ * @Transactional method so the database gives the same all-or-nothing guarantee.
+ *
+ * One listNo is generated for the *whole batch* (this is what "Add to Finance" is: one payment
+ * submission covering several invoices, mirroring the old system's List No concept exactly - the
+ * Invoice Report's "Generate Finance Report" screen groups invoices by this shared number). NNN
+ * resets per calendar month: it counts distinct list numbers already used in the same YYYY/MM,
+ * not per day and not per invoice.
+ */
 export async function batchAddToFinance(
   invoiceIds: number[],
   payload: BatchAddToFinancePayload,
@@ -320,23 +363,47 @@ export async function batchAddToFinance(
     invoiceIds: 'At least one selected invoice is missing a GRN.',
   })
 
-  const [year, month, day] = payload.financeSubmitDate.split('-')
-  const results: Invoice[] = []
+  // Validate every invoice up front. Nothing below this point mutates state, so a thrown error
+  // here leaves the database exactly as it was.
+  const invoices = invoiceIds.map((id) => findInvoiceOrThrow(id))
+  const missingGrn = invoices.find((invoice) => !invoice.grnNumber)
+  if (missingGrn) {
+    throw new ApiError(
+      `Invoice ${missingGrn.invoiceNumber} cannot be submitted to finance without a GRN`,
+      422,
+    )
+  }
 
-  invoiceIds.forEach((id, index) => {
-    const invoice = findInvoiceOrThrow(id)
-    if (!invoice.grnNumber) {
-      throw new ApiError(`Invoice ${id} cannot be submitted to finance without a GRN`, 422)
-    }
-    const existingCountToday = db.invoices.filter((inv) =>
-      (inv.listNo ?? '').startsWith(`${year}/${month}/${day}/`),
-    ).length
-    invoice.listNo = `${year}/${month}/${day}/${String(existingCountToday + index + 1).padStart(3, '0')}`
+  const [year, month] = payload.financeSubmitDate.split('-')
+  const monthPrefix = `${year}/${month}/`
+  const datePrefix = payload.financeSubmitDate.replaceAll('-', '/')
+  const distinctListNumbersThisMonth = new Set(
+    db.invoices
+      .map((invoice) => invoice.listNo)
+      .filter((listNo): listNo is string => Boolean(listNo) && listNo!.startsWith(monthPrefix)),
+  ).size
+  const listNo = `${datePrefix}/${String(distinctListNumbersThisMonth + 1).padStart(3, '0')}`
+  const now = toIsoDate(new Date())
+
+  // Every remaining step is a plain field assignment - none of it can throw, so once validation
+  // above passes, the whole batch really does apply together.
+  for (const invoice of invoices) {
+    invoice.listNo = listNo
     invoice.financeSubmitDate = payload.financeSubmitDate
     invoice.updatedByUserId = payload.updatedByUserId
-    invoice.updatedAt = toIsoDate(new Date())
-    results.push(invoice)
-  })
+    invoice.updatedAt = now
+  }
 
-  return results
+  return invoices
+}
+
+/** Distinct list numbers currently assigned, newest first - for the report screen's List No filter. */
+export async function getDistinctListNumbers(): Promise<string[]> {
+  await delay(150, 350)
+
+  const listNumbers = new Set<string>()
+  for (const invoice of db.invoices) {
+    if (invoice.listNo) listNumbers.add(invoice.listNo)
+  }
+  return [...listNumbers].sort().reverse()
 }

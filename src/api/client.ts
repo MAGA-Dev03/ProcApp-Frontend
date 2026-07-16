@@ -17,6 +17,7 @@ export {
   recordGrn,
   batchAddToFinance,
   checkDuplicateInvoiceNumber,
+  getDistinctListNumbers,
   listProjects,
   getProject,
   listSuppliers,

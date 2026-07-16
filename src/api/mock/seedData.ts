@@ -219,6 +219,10 @@ const REMARKS_SAMPLES = [
   null,
 ]
 
+/** SUBMITTED-bucket invoices are grouped into batches sharing one listNo each (a "batch" is what
+ * one Add-to-Finance submission produces) - sums to the SUBMITTED count in INVOICE_BUCKET_PLAN. */
+const SUBMITTED_BATCH_SIZES = [6, 5, 4, 5, 3, 4, 5, 3, 5, 5]
+
 export function buildInvoices(
   projects: Project[],
   suppliers: Supplier[],
@@ -233,39 +237,93 @@ export function buildInvoices(
     ),
   )
 
-  const listNoCounterByDate = new Map<string, number>()
+  /** Mirrors the real batchAddToFinance: one listNo per batch, NNN resets per calendar month. */
+  const listNoCounterByMonth = new Map<string, number>()
   const nextListNo = (financeSubmitDate: Date): string => {
     const [year, month, day] = toIsoDate(financeSubmitDate).split('-')
-    const key = `${year}${month}${day}`
-    const seq = (listNoCounterByDate.get(key) ?? 0) + 1
-    listNoCounterByDate.set(key, seq)
+    const monthKey = `${year}${month}`
+    const seq = (listNoCounterByMonth.get(monthKey) ?? 0) + 1
+    listNoCounterByMonth.set(monthKey, seq)
     return `${year}/${month}/${day}/${String(seq).padStart(3, '0')}`
   }
 
   const invoices: Invoice[] = []
   let id = 1
 
+  function buildCoreFields(bucket: InvoiceBucket) {
+    const invoiceDate = daysAgo(randomInt(1, 365))
+    const receivedDate = addDays(invoiceDate, randomInt(0, 5))
+    const project = randomItem(projects)
+    const supplier = randomItem(suppliers)
+    const author = randomItem(authors.length > 0 ? authors : users)
+    const value = randomInt(5_000, 2_500_000)
+    const hasGrn = bucket === 'GRN_ONLY' || bucket === 'SUBMITTED'
+    const grnReceivedDate = hasGrn ? addDays(receivedDate, randomInt(1, 10)) : null
+
+    return { invoiceDate, receivedDate, project, supplier, author, value, hasGrn, grnReceivedDate }
+  }
+
   for (const { bucket, count } of INVOICE_BUCKET_PLAN) {
+    if (bucket === 'SUBMITTED') {
+      for (const batchSize of SUBMITTED_BATCH_SIZES) {
+        const batch = Array.from({ length: batchSize }, () => buildCoreFields(bucket))
+        const latestGrnReceivedDate = batch.reduce(
+          (latest, entry) => (entry.grnReceivedDate! > latest ? entry.grnReceivedDate! : latest),
+          batch[0].grnReceivedDate!,
+        )
+        const financeSubmitDate = addDays(latestGrnReceivedDate, randomInt(1, 5))
+        const listNo = nextListNo(financeSubmitDate)
+        const approver = randomItem(approvers.length > 0 ? approvers : users)
+
+        for (const entry of batch) {
+          const { invoiceDate, receivedDate, project, supplier, author, value, grnReceivedDate } =
+            entry
+          invoices.push({
+            id,
+            invoiceType: randomItem(INVOICE_TYPES),
+            invoiceSource: randomItem(INVOICE_SOURCES),
+            projectId: project.id,
+            supplierId: supplier.id,
+            invoiceNumber: `INV-${project.code.slice(-3)}-${String(id).padStart(4, '0')}`,
+            invoiceDate: toIsoDate(invoiceDate),
+            receivedDate: toIsoDate(receivedDate),
+            purchaseOrderNumber: `PO-${randomInt(10000, 99999)}`,
+            value,
+            pioNumber: `PIO-${randomInt(1000, 9999)}`,
+            grnNumber: `GRN-${randomInt(10000, 99999)}`,
+            grnReceivedDate: toIsoDate(grnReceivedDate!),
+            listNo,
+            financeSubmitDate: toIsoDate(financeSubmitDate),
+            remarks: randomItem(REMARKS_SAMPLES),
+            attachmentUrl: Math.random() < 0.7 ? `https://files.maga.lk/invoices/${id}.pdf` : null,
+            attachmentViewed: Math.random() < 0.5,
+            active: true,
+            authorUserId: author.id,
+            updatedByUserId: approver.id,
+            createdAt: toIsoDate(receivedDate),
+            updatedAt: toIsoDate(financeSubmitDate),
+          })
+          id++
+        }
+      }
+      continue
+    }
+
     for (let i = 0; i < count; i++) {
-      const invoiceDate = daysAgo(randomInt(1, 365))
-      const receivedDate = addDays(invoiceDate, randomInt(0, 5))
-      const project = randomItem(projects)
-      const supplier = randomItem(suppliers)
-      const author = randomItem(authors.length > 0 ? authors : users)
-      const value = randomInt(5_000, 2_500_000)
-
-      const hasGrn = bucket === 'GRN_ONLY' || bucket === 'SUBMITTED'
-      const isSubmitted = bucket === 'SUBMITTED'
+      const {
+        invoiceDate,
+        receivedDate,
+        project,
+        supplier,
+        author,
+        value,
+        hasGrn,
+        grnReceivedDate,
+      } = buildCoreFields(bucket)
       const isInactive = bucket === 'INACTIVE'
-
-      const grnReceivedDate = hasGrn ? addDays(receivedDate, randomInt(1, 10)) : null
-      const financeSubmitDate =
-        isSubmitted && grnReceivedDate ? addDays(grnReceivedDate, randomInt(1, 14)) : null
-      const updatedBy =
-        isSubmitted || isInactive ? randomItem(approvers.length > 0 ? approvers : users) : null
-
+      const updatedBy = isInactive ? randomItem(approvers.length > 0 ? approvers : users) : null
       const createdAt = receivedDate
-      const updatedAt = financeSubmitDate ?? grnReceivedDate ?? receivedDate
+      const updatedAt = grnReceivedDate ?? receivedDate
 
       invoices.push({
         id,
@@ -281,8 +339,8 @@ export function buildInvoices(
         pioNumber: `PIO-${randomInt(1000, 9999)}`,
         grnNumber: hasGrn ? `GRN-${randomInt(10000, 99999)}` : null,
         grnReceivedDate: grnReceivedDate ? toIsoDate(grnReceivedDate) : null,
-        listNo: financeSubmitDate ? nextListNo(financeSubmitDate) : null,
-        financeSubmitDate: financeSubmitDate ? toIsoDate(financeSubmitDate) : null,
+        listNo: null,
+        financeSubmitDate: null,
         remarks: randomItem(REMARKS_SAMPLES),
         attachmentUrl: Math.random() < 0.7 ? `https://files.maga.lk/invoices/${id}.pdf` : null,
         attachmentViewed: Math.random() < 0.5,

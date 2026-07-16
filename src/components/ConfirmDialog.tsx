@@ -40,6 +40,10 @@ export function ConfirmDialog({
     try {
       await onConfirm()
       onOpenChange(false)
+    } catch {
+      // Swallowed deliberately: the caller's onConfirm (typically a mutation) is responsible for
+      // surfacing its own failure (e.g. a toast). We just keep the dialog open so the user can
+      // retry, instead of letting this become an unhandled promise rejection.
     } finally {
       setIsConfirming(false)
     }
