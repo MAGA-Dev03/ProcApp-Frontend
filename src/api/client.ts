@@ -13,6 +13,7 @@ export {
   deleteInvoice,
   cancelInvoice,
   activateInvoice,
+  clearFinanceSubmission,
   recordGrn,
   batchAddToFinance,
   checkDuplicateInvoiceNumber,

@@ -251,6 +251,25 @@ export async function activateInvoice(id: number, updatedByUserId: number): Prom
   return invoice
 }
 
+/**
+ * "Un-batch" escape hatch: clears listNo/financeSubmitDate so the invoice drops back to the
+ * pending-finance list. Only updatedAt/updatedByUserId record that this happened - there is no
+ * separate audit log entry, which the UI must make visible to the user before they confirm.
+ */
+export async function clearFinanceSubmission(
+  id: number,
+  updatedByUserId: number,
+): Promise<Invoice> {
+  await delay()
+
+  const invoice = findInvoiceOrThrow(id)
+  invoice.listNo = null
+  invoice.financeSubmitDate = null
+  invoice.updatedByUserId = updatedByUserId
+  invoice.updatedAt = toIsoDate(new Date())
+  return invoice
+}
+
 export async function recordGrn(id: number, payload: RecordGrnPayload): Promise<Invoice> {
   await delay()
   maybeFail(0.08, 'Validation failed', { grnNumber: 'GRN number is required.' })
