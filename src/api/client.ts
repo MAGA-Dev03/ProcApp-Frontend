@@ -7,6 +7,8 @@
  */
 export {
   listInvoices,
+  listInvoicesForSiteKeeper,
+  markAttachmentViewed,
   getInvoice,
   createInvoice,
   updateInvoice,

@@ -12,6 +12,9 @@ import { delay, maybeFail, paginate, toIsoDate } from './utils'
 
 export interface ListInvoicesParams extends PageParams {
   projectId?: number
+  /** "IN" restriction to a set of project ids - how server-side scoping (e.g. Site Store Keeper's
+   * assigned projects) is applied, distinct from the single-project `projectId` filter above. */
+  projectIds?: number[]
   supplierId?: number
   invoiceType?: InvoiceType
   invoiceSource?: InvoiceSource
@@ -110,6 +113,10 @@ export async function listInvoices(
   if (params.projectId !== undefined) {
     results = results.filter((inv) => inv.projectId === params.projectId)
   }
+  if (params.projectIds !== undefined) {
+    const allowedIds = new Set(params.projectIds)
+    results = results.filter((inv) => allowedIds.has(inv.projectId))
+  }
   if (params.supplierId !== undefined) {
     results = results.filter((inv) => inv.supplierId === params.supplierId)
   }
@@ -176,6 +183,49 @@ export async function listInvoices(
   const page = paginate(sorted, params)
 
   return { ...page, content: page.content.map(toInvoiceWithRelations) }
+}
+
+/**
+ * Server-side project scoping for the Site Store Keeper screen. `currentUserId` must come from
+ * the caller's authenticated session (in this mock, the AuthContext's currentUser.id) - never from
+ * a client-supplied filter - because this is the actual authorization boundary: a real backend
+ * would derive it from the verified JWT/session and apply the same WHERE-clause restriction at the
+ * repository layer, so a tampered request can't widen its own scope. If the caller also passes a
+ * specific projectId outside what this user is allowed to see, we don't fall back to "show
+ * everything" - we return an empty page, exactly like a row-level security policy would.
+ */
+export async function listInvoicesForSiteKeeper(
+  currentUserId: number,
+  params: ListInvoicesParams = {},
+): Promise<Page<InvoiceWithRelations>> {
+  const user = db.users.find((u) => u.id === currentUserId)
+  if (!user) {
+    throw new ApiError('User not found', 404)
+  }
+
+  if (user.allProjects) {
+    return listInvoices(params)
+  }
+
+  const allowedProjectIds = (user.projects ?? []).map((project) => project.id)
+  if (params.projectId !== undefined && !allowedProjectIds.includes(params.projectId)) {
+    await delay()
+    return paginate([], params)
+  }
+
+  return listInvoices({ ...params, projectIds: allowedProjectIds })
+}
+
+/** Marks an invoice's attachment as viewed - the Site Store Keeper screen calls this the moment
+ * the attachment link is opened. */
+export async function markAttachmentViewed(id: number, updatedByUserId: number): Promise<Invoice> {
+  await delay(100, 250)
+
+  const invoice = findInvoiceOrThrow(id)
+  invoice.attachmentViewed = true
+  invoice.updatedByUserId = updatedByUserId
+  invoice.updatedAt = toIsoDate(new Date())
+  return invoice
 }
 
 export async function getInvoice(id: number): Promise<InvoiceWithRelations> {
