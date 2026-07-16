@@ -81,6 +81,37 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+
+  /* Data-viz: categorical (identity), fixed hue order - never cycled or reordered per-chart. */
+  --viz-cat-1: #2a78d6; /* blue */
+  --viz-cat-2: #008300; /* green */
+  --viz-cat-3: #e87ba4; /* magenta */
+  --viz-cat-4: #eda100; /* yellow */
+  --viz-cat-5: #1baf7a; /* aqua */
+  --viz-cat-6: #eb6834; /* orange */
+  --viz-cat-7: #4a3aa7; /* violet */
+  --viz-cat-8: #e34948; /* red */
+
+  /* Data-viz: ordinal blue ramp for aging buckets (bucket order = escalating risk). */
+  --viz-aging-1: #86b6ef;
+  --viz-aging-2: #6da7ec;
+  --viz-aging-3: #3987e5;
+  --viz-aging-4: #2a78d6;
+  --viz-aging-5: #1c5cab;
+  --viz-aging-6: #104281;
+  --viz-aging-7: #0d366b;
+
+  /* Data-viz: ordinal blue ramp for ranked suppliers (rank 1 = largest payable, darkest). */
+  --viz-rank-1: #0d366b;
+  --viz-rank-2: #104281;
+  --viz-rank-3: #184f95;
+  --viz-rank-4: #1c5cab;
+  --viz-rank-5: #256abf;
+  --viz-rank-6: #2a78d6;
+  --viz-rank-7: #3987e5;
+  --viz-rank-8: #5598e7;
+  --viz-rank-9: #6da7ec;
+  --viz-rank-10: #86b6ef;
 }
 
 .dark {
@@ -115,6 +146,37 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+
+  /* Data-viz: categorical (identity), same hues re-stepped for the dark surface. */
+  --viz-cat-1: #3987e5;
+  --viz-cat-2: #008300;
+  --viz-cat-3: #d55181;
+  --viz-cat-4: #c98500;
+  --viz-cat-5: #199e70;
+  --viz-cat-6: #d95926;
+  --viz-cat-7: #9085e9;
+  --viz-cat-8: #e66767;
+
+  /* Data-viz: ordinal blue ramp for aging buckets, re-stepped for the dark surface. */
+  --viz-aging-1: #b7d3f6;
+  --viz-aging-2: #9ec5f4;
+  --viz-aging-3: #6da7ec;
+  --viz-aging-4: #5598e7;
+  --viz-aging-5: #2a78d6;
+  --viz-aging-6: #1c5cab;
+  --viz-aging-7: #184f95;
+
+  /* Data-viz: ordinal blue ramp for ranked suppliers, re-stepped for the dark surface. */
+  --viz-rank-1: #184f95;
+  --viz-rank-2: #1c5cab;
+  --viz-rank-3: #256abf;
+  --viz-rank-4: #2a78d6;
+  --viz-rank-5: #3987e5;
+  --viz-rank-6: #5598e7;
+  --viz-rank-7: #6da7ec;
+  --viz-rank-8: #86b6ef;
+  --viz-rank-9: #9ec5f4;
+  --viz-rank-10: #b7d3f6;
 }
 
 @layer base {
