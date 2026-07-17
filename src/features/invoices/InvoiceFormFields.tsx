@@ -2,7 +2,7 @@ import { type ReactNode, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useQuery } from '@tanstack/react-query'
-import { checkDuplicateInvoiceNumber } from '@/api/client'
+import { ApiError, checkDuplicateInvoiceNumber } from '@/api/client'
 import type { InvoiceWithRelations } from '@/types'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -103,6 +103,7 @@ export function InvoiceFormFields({
   const isProcurementManager = useHasRole('PROCUREMENT_MANAGER')
   const [frozenFields, setFrozenFields] = useState<Set<FreezableField>>(new Set())
   const [attachmentRemoved, setAttachmentRemoved] = useState(false)
+  const [submitError, setSubmitError] = useState<string | null>(null)
   const isCreate = mode === 'create'
 
   const {
@@ -111,6 +112,7 @@ export function InvoiceFormFields({
     watch,
     reset,
     getValues,
+    setError,
     formState: { errors },
   } = useForm<InvoiceFormValues>({
     resolver: zodResolver(invoiceFormSchema),
@@ -139,7 +141,19 @@ export function InvoiceFormFields({
   const receivedBeforeInvoice = invoiceDate && receivedDate ? receivedDate < invoiceDate : false
 
   async function handleFormSubmit(values: InvoiceFormValues) {
-    await onSubmit(values, attachmentRemoved)
+    setSubmitError(null)
+    try {
+      await onSubmit(values, attachmentRemoved)
+    } catch (err) {
+      if (err instanceof ApiError && err.fieldErrors) {
+        for (const [field, message] of Object.entries(err.fieldErrors)) {
+          setError(field as keyof InvoiceFormValues, { message })
+        }
+      } else {
+        setSubmitError('Could not save the invoice. Please try again.')
+      }
+      return
+    }
 
     if (isCreate) {
       const current = getValues()
@@ -317,6 +331,11 @@ export function InvoiceFormFields({
       {Object.keys(errors).length > 0 && (
         <Alert variant="destructive">
           <AlertDescription>Please fix the highlighted fields and try again.</AlertDescription>
+        </Alert>
+      )}
+      {submitError && (
+        <Alert variant="destructive">
+          <AlertDescription>{submitError}</AlertDescription>
         </Alert>
       )}
 

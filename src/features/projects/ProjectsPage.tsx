@@ -114,7 +114,11 @@ export function ProjectsPage() {
         getRowId={(row) => String(row.id)}
         isLoading={projectsQuery.isLoading}
         isError={projectsQuery.isError}
-        emptyMessage="No projects found."
+        emptyMessage={
+          search
+            ? 'No projects match your search.'
+            : 'No projects yet. Click "Add Project" above to create the first one.'
+        }
         rowActions={(project) => (
           <>
             <Button

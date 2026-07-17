@@ -109,7 +109,11 @@ export function SuppliersPage() {
         getRowId={(row) => String(row.id)}
         isLoading={suppliersQuery.isLoading}
         isError={suppliersQuery.isError}
-        emptyMessage="No suppliers found."
+        emptyMessage={
+          search
+            ? 'No suppliers match your search.'
+            : 'No suppliers yet. Click "Add Supplier" above to create the first one.'
+        }
         rowActions={(supplier) => (
           <>
             <Button

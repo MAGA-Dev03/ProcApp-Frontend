@@ -85,6 +85,7 @@ export function SiteKeeperPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['invoices', 'site-keeper'] })
     },
+    onError: () => toast.error('Could not open the attachment. Please try again.'),
   })
 
   const columns = useMemo(

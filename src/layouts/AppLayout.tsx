@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
-import { ChevronsLeft, ChevronsRight, LogOut, User as UserIcon } from 'lucide-react'
+import { ChevronsLeft, ChevronsRight, LogOut, Menu, User as UserIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
@@ -12,6 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { cn } from '@/lib/utils'
 import { useAuth, useHasRole } from '@/features/auth'
 import { NAV_ITEMS } from '@/routes/navConfig'
@@ -25,9 +26,9 @@ function initials(name: string): string {
     .toUpperCase()
 }
 
-function NavLinks({ collapsed }: { collapsed: boolean }) {
+function NavLinks({ collapsed, onNavigate }: { collapsed: boolean; onNavigate?: () => void }) {
   return (
-    <nav className="flex flex-col gap-1 p-2">
+    <nav className="flex flex-col gap-1 p-2" onClick={onNavigate}>
       {NAV_ITEMS.map((item) => (
         <VisibleNavLink key={item.to} item={item} collapsed={collapsed} />
       ))}
@@ -66,6 +67,7 @@ function VisibleNavLink({
 
 export function AppLayout() {
   const [collapsed, setCollapsed] = useState(false)
+  const [mobileNavOpen, setMobileNavOpen] = useState(false)
   const { currentUser, logout } = useAuth()
   const navigate = useNavigate()
 
@@ -99,9 +101,36 @@ export function AppLayout() {
         </div>
       </aside>
 
+      <Sheet open={mobileNavOpen} onOpenChange={setMobileNavOpen}>
+        <SheetContent
+          side="left"
+          className="w-64 bg-sidebar p-0 text-sidebar-foreground sm:max-w-64"
+        >
+          <SheetHeader className="border-b border-sidebar-border">
+            <SheetTitle>ProcApp</SheetTitle>
+          </SheetHeader>
+          <div className="flex-1 overflow-y-auto">
+            <NavLinks collapsed={false} onNavigate={() => setMobileNavOpen(false)} />
+          </div>
+        </SheetContent>
+      </Sheet>
+
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="flex h-14 shrink-0 items-center justify-between border-b border-border px-4">
-          <span className="text-sm text-muted-foreground">Invoice Management System</span>
+        <header className="flex h-14 shrink-0 items-center justify-between gap-2 border-b border-border px-4">
+          <div className="flex min-w-0 items-center gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="shrink-0 md:hidden"
+              aria-label="Open navigation menu"
+              onClick={() => setMobileNavOpen(true)}
+            >
+              <Menu className="size-5" />
+            </Button>
+            <span className="truncate text-sm text-muted-foreground">
+              Invoice Management System
+            </span>
+          </div>
 
           {currentUser && (
             <DropdownMenu>

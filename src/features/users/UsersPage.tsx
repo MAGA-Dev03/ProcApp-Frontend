@@ -160,7 +160,11 @@ export function UsersPage() {
         getRowId={(row) => String(row.id)}
         isLoading={usersQuery.isLoading}
         isError={usersQuery.isError}
-        emptyMessage="No users found."
+        emptyMessage={
+          search
+            ? 'No users match your search.'
+            : 'No users yet. Click "Add User" above to create the first one.'
+        }
         rowActions={(user) => (
           <>
             <Button

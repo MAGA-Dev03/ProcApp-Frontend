@@ -1,7 +1,9 @@
 import { useMemo, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
 import { Ban, CheckCircle2, FileCheck, Pencil, Trash2 } from 'lucide-react'
 import {
+  ApiError,
   activateInvoice,
   cancelInvoice,
   createInvoice,
@@ -89,6 +91,10 @@ export function InvoicesPage() {
     queryClient.invalidateQueries({ queryKey: ['invoices'] })
   }
 
+  function showMutationError(err: unknown, fallback: string) {
+    toast.error(err instanceof ApiError ? err.message : fallback)
+  }
+
   const createMutation = useMutation({
     mutationFn: (values: InvoiceFormValues) =>
       createInvoice(toCreatePayload(values, currentUser!.id)),
@@ -114,6 +120,7 @@ export function InvoicesPage() {
   const deleteMutation = useMutation({
     mutationFn: (id: number) => deleteInvoice(id),
     onSuccess: invalidateInvoices,
+    onError: (err) => showMutationError(err, 'Could not delete the invoice. Please try again.'),
   })
 
   const recordGrnMutation = useMutation({
@@ -128,11 +135,13 @@ export function InvoicesPage() {
   const cancelMutation = useMutation({
     mutationFn: (id: number) => cancelInvoice(id, currentUser!.id),
     onSuccess: invalidateInvoices,
+    onError: (err) => showMutationError(err, 'Could not cancel the invoice. Please try again.'),
   })
 
   const activateMutation = useMutation({
     mutationFn: (id: number) => activateInvoice(id, currentUser!.id),
     onSuccess: invalidateInvoices,
+    onError: (err) => showMutationError(err, 'Could not activate the invoice. Please try again.'),
   })
 
   async function handleCreateOrUpdate(values: InvoiceFormValues, attachmentRemoved: boolean) {

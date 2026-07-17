@@ -1,3 +1,4 @@
+import { toast } from 'sonner'
 import type { InvoiceWithRelations } from '@/types'
 import {
   Dialog,
@@ -22,6 +23,27 @@ interface FinanceReportModalProps {
 
 export function FinanceReportModal({ listNo, invoices, onOpenChange }: FinanceReportModalProps) {
   const total = invoices.reduce((sum, invoice) => sum + invoice.value, 0)
+
+  function handleDownloadPdf() {
+    if (!listNo) return
+    try {
+      downloadFinanceReportPdf(listNo, invoices)
+    } catch {
+      toast.error('Could not generate the PDF. Please try again.')
+    }
+  }
+
+  function handleExportExcel() {
+    if (!listNo) return
+    try {
+      exportRowsToExcel(
+        invoices.map(toReportRow),
+        `finance-report-${listNo.replaceAll('/', '-')}.xlsx`,
+      )
+    } catch {
+      toast.error('Could not export to Excel. Please try again.')
+    }
+  }
 
   return (
     <Dialog open={listNo !== null} onOpenChange={onOpenChange}>
@@ -85,19 +107,10 @@ export function FinanceReportModal({ listNo, invoices, onOpenChange }: FinanceRe
             </div>
 
             <div className="flex flex-wrap gap-2 pt-2">
-              <Button type="button" onClick={() => downloadFinanceReportPdf(listNo, invoices)}>
+              <Button type="button" onClick={handleDownloadPdf}>
                 Download as PDF
               </Button>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() =>
-                  exportRowsToExcel(
-                    invoices.map(toReportRow),
-                    `finance-report-${listNo.replaceAll('/', '-')}.xlsx`,
-                  )
-                }
-              >
+              <Button type="button" variant="outline" onClick={handleExportExcel}>
                 Export to Excel
               </Button>
               <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>
