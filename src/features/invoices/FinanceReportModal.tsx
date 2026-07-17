@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { toast } from 'sonner'
 import type { InvoiceWithRelations } from '@/types'
 import {
@@ -23,13 +24,17 @@ interface FinanceReportModalProps {
 
 export function FinanceReportModal({ listNo, invoices, onOpenChange }: FinanceReportModalProps) {
   const total = invoices.reduce((sum, invoice) => sum + invoice.value, 0)
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false)
 
-  function handleDownloadPdf() {
+  async function handleDownloadPdf() {
     if (!listNo) return
+    setIsGeneratingPdf(true)
     try {
-      downloadFinanceReportPdf(listNo, invoices)
+      await downloadFinanceReportPdf(listNo, invoices)
     } catch {
       toast.error('Could not generate the PDF. Please try again.')
+    } finally {
+      setIsGeneratingPdf(false)
     }
   }
 
@@ -50,11 +55,14 @@ export function FinanceReportModal({ listNo, invoices, onOpenChange }: FinanceRe
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-3xl">
         {listNo && (
           <>
-            <DialogHeader>
-              <DialogTitle>Payment Submission — Procurement Department</DialogTitle>
-              <DialogDescription>
-                List No: {listNo} · Generated {new Date().toLocaleDateString()}
-              </DialogDescription>
+            <DialogHeader className="flex-row items-center gap-3">
+              <img src="/logo.png" alt="MAGA Engineering" className="h-12 w-auto shrink-0" />
+              <div>
+                <DialogTitle>Payment Submission — Procurement Department</DialogTitle>
+                <DialogDescription>
+                  List No: {listNo} · Generated {new Date().toLocaleDateString()}
+                </DialogDescription>
+              </div>
             </DialogHeader>
 
             <div className="overflow-x-auto rounded-lg border border-border">
@@ -107,8 +115,8 @@ export function FinanceReportModal({ listNo, invoices, onOpenChange }: FinanceRe
             </div>
 
             <div className="flex flex-wrap gap-2 pt-2">
-              <Button type="button" onClick={handleDownloadPdf}>
-                Download as PDF
+              <Button type="button" onClick={handleDownloadPdf} disabled={isGeneratingPdf}>
+                {isGeneratingPdf ? 'Generating…' : 'Download as PDF'}
               </Button>
               <Button type="button" variant="outline" onClick={handleExportExcel}>
                 Export to Excel

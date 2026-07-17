@@ -42,7 +42,8 @@ export function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-svh items-center justify-center bg-muted/30 p-4">
+    <div className="flex min-h-svh flex-col items-center justify-center gap-6 bg-muted/30 p-4">
+      <img src="/logo.png" alt="MAGA Engineering" className="h-16 w-auto" />
       <Card className="w-full max-w-sm">
         <CardHeader>
           <CardTitle>Sign in to ProcApp</CardTitle>

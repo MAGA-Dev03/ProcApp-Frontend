@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
-import { ChevronsLeft, ChevronsRight, LogOut, Menu, User as UserIcon } from 'lucide-react'
+import { ChevronsLeft, LogOut, Menu, User as UserIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
@@ -84,17 +84,43 @@ export function AppLayout() {
           collapsed ? 'w-16' : 'w-64',
         )}
       >
-        <div className="flex h-14 items-center justify-between border-b border-sidebar-border px-4">
-          {!collapsed && <span className="font-semibold">ProcApp</span>}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="size-7"
-            onClick={() => setCollapsed((c) => !c)}
-            aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-          >
-            {collapsed ? <ChevronsRight className="size-4" /> : <ChevronsLeft className="size-4" />}
-          </Button>
+        <div
+          className={cn(
+            'flex h-14 items-center border-b border-sidebar-border',
+            collapsed ? 'justify-center px-2' : 'justify-between px-4',
+          )}
+        >
+          {collapsed ? (
+            // Collapsed: the full lockup (with tagline) is illegible at icon-rail width, so show
+            // just the mark, and let it double as the expand button instead of squeezing a
+            // separate toggle into the same 64px-wide row.
+            <button
+              type="button"
+              onClick={() => setCollapsed(false)}
+              aria-label="Expand sidebar"
+              className="rounded-md bg-white p-1 shadow-sm"
+            >
+              <img src="/logo-mark.png" alt="" className="size-6" />
+            </button>
+          ) : (
+            <>
+              <div className="flex min-w-0 items-center gap-2">
+                <span className="shrink-0 rounded-md bg-white p-1 shadow-sm">
+                  <img src="/logo.png" alt="MAGA Engineering" className="h-7 w-auto" />
+                </span>
+                <span className="truncate font-semibold">ProcApp</span>
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-7 shrink-0"
+                onClick={() => setCollapsed(true)}
+                aria-label="Collapse sidebar"
+              >
+                <ChevronsLeft className="size-4" />
+              </Button>
+            </>
+          )}
         </div>
         <div className="flex-1 overflow-y-auto">
           <NavLinks collapsed={collapsed} />
@@ -106,7 +132,10 @@ export function AppLayout() {
           side="left"
           className="w-64 bg-sidebar p-0 text-sidebar-foreground sm:max-w-64"
         >
-          <SheetHeader className="border-b border-sidebar-border">
+          <SheetHeader className="flex-row items-center gap-2 border-b border-sidebar-border">
+            <span className="shrink-0 rounded-md bg-white p-1 shadow-sm">
+              <img src="/logo.png" alt="MAGA Engineering" className="h-7 w-auto" />
+            </span>
             <SheetTitle>ProcApp</SheetTitle>
           </SheetHeader>
           <div className="flex-1 overflow-y-auto">

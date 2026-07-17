@@ -9,19 +9,40 @@ interface DocWithAutoTable extends jsPDF {
 
 const SIGNATURE_LABELS = ['Prepared By', 'Checked By', 'Certified By', 'Approved By']
 
-export function downloadFinanceReportPdf(listNo: string, invoices: InvoiceWithRelations[]) {
+/** jsPDF's addImage needs the image data up front (base64/data URL), not a URL it can load
+ * itself - so the logo is fetched and inlined once per report generation. */
+async function loadLogoDataUrl(): Promise<string> {
+  const response = await fetch('/logo.png')
+  const blob = await response.blob()
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => resolve(reader.result as string)
+    reader.onerror = () => reject(reader.error ?? new Error('Failed to read logo image'))
+    reader.readAsDataURL(blob)
+  })
+}
+
+export async function downloadFinanceReportPdf(listNo: string, invoices: InvoiceWithRelations[]) {
   const doc = new jsPDF({ unit: 'pt', format: 'a4' })
   const total = invoices.reduce((sum, invoice) => sum + invoice.value, 0)
   const pageWidth = doc.internal.pageSize.getWidth()
 
+  // Logo's natural size is 120x78 (a ~1.54:1 lockup) - scale it down to a letterhead-sized mark
+  // and let the title/meta text sit to its right, like a real procurement document's letterhead.
+  const logoWidth = 66
+  const logoHeight = logoWidth * (78 / 120)
+  const logoDataUrl = await loadLogoDataUrl()
+  doc.addImage(logoDataUrl, 'PNG', 40, 30, logoWidth, logoHeight)
+
+  const textX = 40 + logoWidth + 16
   doc.setFontSize(14)
-  doc.text('Payment Submission — Procurement Department', 40, 40)
+  doc.text('Payment Submission — Procurement Department', textX, 50)
   doc.setFontSize(10)
-  doc.text(`List No: ${listNo}`, 40, 60)
-  doc.text(`Generated: ${new Date().toLocaleDateString()}`, 40, 75)
+  doc.text(`List No: ${listNo}`, textX, 68)
+  doc.text(`Generated: ${new Date().toLocaleDateString()}`, textX, 82)
 
   autoTable(doc, {
-    startY: 95,
+    startY: 30 + logoHeight + 20,
     head: [['Invoice No', 'Project', 'Supplier', 'PO Number', 'Value']],
     body: invoices.map((invoice) => [
       invoice.invoiceNumber,
