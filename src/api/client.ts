@@ -36,6 +36,7 @@ export {
   createUser,
   updateUser,
   deleteUser,
+  updateOwnProfile,
   listRoles,
   createRole,
   login,
@@ -65,7 +66,12 @@ export type {
   CreateSupplierPayload,
   UpdateSupplierPayload,
 } from './mock/suppliers'
-export type { ListUsersParams, CreateUserPayload, UpdateUserPayload } from './mock/users'
+export type {
+  ListUsersParams,
+  CreateUserPayload,
+  UpdateUserPayload,
+  UpdateOwnProfilePayload,
+} from './mock/users'
 export type { CreateRolePayload } from './mock/roles'
 export type { LoginPayload, LoginResult } from './mock/auth'
 export type {

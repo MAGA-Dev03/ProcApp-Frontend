@@ -155,6 +155,41 @@ export async function updateUser(id: number, payload: UpdateUserPayload): Promis
   return updated
 }
 
+export interface UpdateOwnProfilePayload {
+  name?: string
+  /**
+   * Accepted for parity with a real change-password form, but - like `CreateUserPayload.password`
+   * - this mock has no per-user credential store (login checks a single shared MOCK_PASSWORD; see
+   * `auth.ts`), so it is intentionally not persisted. Blank/omitted = keep the existing password.
+   */
+  password?: string
+}
+
+/**
+ * Self-service "my profile" update, scoped to exactly the caller's own account. `currentUserId`
+ * must come from the authenticated session (the AuthContext's `currentUser.id`) - never from a
+ * field on the form itself. The old system's edit-profile form posted a client-supplied hidden
+ * `id` input, an IDOR bug: any logged-in user could edit *anyone's* name/password just by changing
+ * that hidden field before submitting. This endpoint takes no id in its payload at all, and only
+ * touches name/password - never roles/projects/active, which stay admin-only via `updateUser`.
+ */
+export async function updateOwnProfile(
+  currentUserId: number,
+  payload: UpdateOwnProfilePayload,
+): Promise<User> {
+  await delay()
+
+  const user = findUserOrThrow(currentUserId)
+  const updated: User = {
+    ...user,
+    name: payload.name ?? user.name,
+  }
+
+  const index = db.users.findIndex((u) => u.id === currentUserId)
+  db.users[index] = updated
+  return updated
+}
+
 /**
  * Blocked, not cascaded: a user who has authored invoices can't be deleted, mirroring a real
  * foreign-key constraint on `invoices.author_user_id`. Deactivate the user instead if they should

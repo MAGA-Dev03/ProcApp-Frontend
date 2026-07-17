@@ -8,6 +8,10 @@ interface AuthContextValue {
   isAuthenticating: boolean
   login: (email: string, password: string) => Promise<void>
   logout: () => void
+  /** Refreshes the in-memory session's user record after a self-service profile edit (e.g. a name
+   * change) so the rest of the app - the header, this context's consumers - reflects it immediately
+   * without a re-login. */
+  updateCurrentUser: (user: User) => void
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null)
@@ -34,7 +38,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ currentUser, token, isAuthenticating, login, logout }}>
+    <AuthContext.Provider
+      value={{
+        currentUser,
+        token,
+        isAuthenticating,
+        login,
+        logout,
+        updateCurrentUser: setCurrentUser,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   )
