@@ -40,6 +40,26 @@ export function nextInvoiceId(): number {
   return invoiceIdSeq++
 }
 
+let projectIdSeq = db.projects.length + 1
+export function nextProjectId(): number {
+  return projectIdSeq++
+}
+
+let supplierIdSeq = db.suppliers.length + 1
+export function nextSupplierId(): number {
+  return supplierIdSeq++
+}
+
+let userIdSeq = db.users.length + 1
+export function nextUserId(): number {
+  return userIdSeq++
+}
+
+let roleIdSeq = db.roles.length + 1
+export function nextRoleId(): number {
+  return roleIdSeq++
+}
+
 export function seedSummary() {
   return {
     roles: db.roles.length,

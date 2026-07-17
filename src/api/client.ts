@@ -22,10 +22,22 @@ export {
   getDistinctListNumbers,
   listProjects,
   getProject,
+  createProject,
+  updateProject,
+  deleteProject,
+  getProjectDeleteImpact,
   listSuppliers,
   getSupplier,
+  createSupplier,
+  updateSupplier,
+  deleteSupplier,
   listUsers,
   getUser,
+  createUser,
+  updateUser,
+  deleteUser,
+  listRoles,
+  createRole,
   login,
   getAgingBuckets,
   getAgingBucketBreakdown,
@@ -42,9 +54,19 @@ export type {
   BatchAddToFinancePayload,
   DuplicateInvoiceCheckResult,
 } from './mock/invoices'
-export type { ListProjectsParams } from './mock/projects'
-export type { ListSuppliersParams } from './mock/suppliers'
-export type { ListUsersParams } from './mock/users'
+export type {
+  ListProjectsParams,
+  CreateProjectPayload,
+  UpdateProjectPayload,
+  ProjectDeleteImpact,
+} from './mock/projects'
+export type {
+  ListSuppliersParams,
+  CreateSupplierPayload,
+  UpdateSupplierPayload,
+} from './mock/suppliers'
+export type { ListUsersParams, CreateUserPayload, UpdateUserPayload } from './mock/users'
+export type { CreateRolePayload } from './mock/roles'
 export type { LoginPayload, LoginResult } from './mock/auth'
 export type {
   AgingBucketKey,

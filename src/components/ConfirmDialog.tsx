@@ -18,6 +18,8 @@ interface ConfirmDialogProps {
   confirmLabel?: string
   cancelLabel?: string
   variant?: 'default' | 'destructive'
+  /** Disables the confirm button without touching cancel - e.g. while impact data is still loading. */
+  confirmDisabled?: boolean
   onConfirm: () => void | Promise<void>
 }
 
@@ -31,6 +33,7 @@ export function ConfirmDialog({
   confirmLabel = 'Confirm',
   cancelLabel = 'Cancel',
   variant = 'destructive',
+  confirmDisabled,
   onConfirm,
 }: ConfirmDialogProps) {
   const [isConfirming, setIsConfirming] = useState(false)
@@ -60,7 +63,7 @@ export function ConfirmDialog({
           <AlertDialogCancel disabled={isConfirming}>{cancelLabel}</AlertDialogCancel>
           <AlertDialogAction
             variant={variant === 'destructive' ? 'destructive' : 'default'}
-            disabled={isConfirming}
+            disabled={isConfirming || confirmDisabled}
             onClick={(event) => {
               event.preventDefault()
               void handleConfirm()
