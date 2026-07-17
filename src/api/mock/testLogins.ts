@@ -22,4 +22,16 @@ export const TEST_LOGINS: TestLogin[] = [
   { email: 'ruwan.fernando@maga.lk', roles: ['SENIOR_MANAGER'] },
   { email: 'chamari.gunawardena@maga.lk', roles: ['REPORT_USER'] },
   { email: 'sunil.bandara@maga.lk', roles: ['SITE_STORE_KEEPER'] },
+  {
+    email: 'superadmin@maga.lk',
+    roles: [
+      'ADMIN',
+      'PROCUREMENT',
+      'PROCUREMENT_MANAGER',
+      'REPORT_USER',
+      'SITE_STORE_KEEPER',
+      'SENIOR_MANAGER',
+    ],
+    note: 'TEST ONLY - all roles combined for demo/QA, not a real role combination',
+  },
 ]

@@ -79,6 +79,22 @@ export function buildUsers(roles: Role[]): User[] {
       active: false,
       roleIds: [byName('SITE_STORE_KEEPER'), byName('REPORT_USER')],
     },
+    {
+      // Demo/testing convenience only - no real employee holds every role at once. Named and
+      // emailed so it's unmistakably a test account, not a real hire.
+      name: 'Test SuperAdmin',
+      email: 'superadmin@maga.lk',
+      allProjects: true,
+      active: true,
+      roleIds: [
+        byName('ADMIN'),
+        byName('PROCUREMENT'),
+        byName('PROCUREMENT_MANAGER'),
+        byName('REPORT_USER'),
+        byName('SITE_STORE_KEEPER'),
+        byName('SENIOR_MANAGER'),
+      ],
+    },
   ]
 
   return raw.map((entry, index) => ({
