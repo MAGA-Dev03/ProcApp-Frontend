@@ -100,6 +100,9 @@ export function LoginPage() {
           </form>
         </CardContent>
       </Card>
+      <footer className="text-center text-xs text-muted-foreground">
+        Copyright © MAGA 2026. All rights reserved.
+      </footer>
     </div>
   )
 }
