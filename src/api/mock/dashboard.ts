@@ -1,3 +1,4 @@
+import type { Invoice } from '@/types'
 import { db } from './db'
 import { delay } from './utils'
 
@@ -43,6 +44,40 @@ export interface TrendPoint {
   monthLabel: string
   receivedValue: number
   submittedValue: number
+}
+
+export interface DashboardSummary {
+  /** Sum of value where active && !listNo - the open receivable, same scope as the aging chart. */
+  outstandingValue: number
+  /** Count where the GRN process isn't complete yet (grnNumber or grnReceivedDate still null). */
+  grnPendingCount: number
+  /** Count where the GRN is complete but the invoice hasn't been batched to finance yet. */
+  readyToSubmitCount: number
+  /** Sum of value where financeSubmitDate falls in the current calendar month. */
+  submittedThisMonthValue: number
+}
+
+export interface CycleTimeStats {
+  /** Average receivedDate -> financeSubmitDate, over all-time submitted invoices. */
+  averageDays: number
+  /** Same average, scoped to invoices submitted in the current/previous calendar month - either
+   * can be null if that month has no submissions yet, in which case the UI skips the trend line
+   * rather than showing a misleading comparison. */
+  currentMonthAverageDays: number | null
+  previousMonthAverageDays: number | null
+}
+
+export interface MonthlyInvoiceVolume {
+  month: string
+  monthLabel: string
+  invoiceCount: number
+}
+
+export interface FinanceBatchSummary {
+  listNo: string
+  financeSubmitDate: string
+  invoiceCount: number
+  totalValue: number
 }
 
 const BUCKET_UPPER_BOUNDS: Array<{ bucket: AgingBucketKey; maxDays: number }> = [
@@ -162,9 +197,10 @@ function monthKey(dateStr: string): string {
   return dateStr.slice(0, 7)
 }
 
-export async function getReceivedVsSubmittedTrend(): Promise<TrendPoint[]> {
-  await delay()
-
+/** Trailing 12 calendar months, oldest first, including months with no data - every chart keyed
+ * by month uses this same fixed window so an inactive month still renders as a zero bar/point
+ * rather than silently disappearing. */
+function trailingMonths(): Array<{ key: string; label: string }> {
   const now = new Date()
   const months: Array<{ key: string; label: string }> = []
   for (let i = 11; i >= 0; i--) {
@@ -174,7 +210,13 @@ export async function getReceivedVsSubmittedTrend(): Promise<TrendPoint[]> {
       label: MONTH_LABEL_FORMATTER.format(date),
     })
   }
+  return months
+}
 
+export async function getReceivedVsSubmittedTrend(): Promise<TrendPoint[]> {
+  await delay()
+
+  const months = trailingMonths()
   const receivedByMonth = new Map<string, number>()
   const submittedByMonth = new Map<string, number>()
 
@@ -194,4 +236,141 @@ export async function getReceivedVsSubmittedTrend(): Promise<TrendPoint[]> {
     receivedValue: receivedByMonth.get(key) ?? 0,
     submittedValue: submittedByMonth.get(key) ?? 0,
   }))
+}
+
+/** GRN not yet complete - matches the "OPEN" bucket in seed terms, i.e. still needs action before
+ * it can even be batched. Scoped to active invoices only: a cancelled invoice missing a GRN isn't
+ * something anyone still needs to chase. */
+function isGrnPending(invoice: Invoice): boolean {
+  return invoice.active && (!invoice.grnNumber || !invoice.grnReceivedDate)
+}
+
+/** GRN complete but not yet batched to finance - exactly the invoices a manager would expect to
+ * see move in the next Add-to-Finance submission. */
+function isReadyToSubmit(invoice: Invoice): boolean {
+  return (
+    invoice.active &&
+    Boolean(invoice.grnNumber) &&
+    Boolean(invoice.grnReceivedDate) &&
+    !invoice.listNo
+  )
+}
+
+function isSameCalendarMonth(dateStr: string, reference: Date): boolean {
+  const date = new Date(dateStr)
+  return date.getFullYear() === reference.getFullYear() && date.getMonth() === reference.getMonth()
+}
+
+export async function getDashboardSummary(): Promise<DashboardSummary> {
+  await delay()
+
+  const now = new Date()
+  let outstandingValue = 0
+  let grnPendingCount = 0
+  let readyToSubmitCount = 0
+  let submittedThisMonthValue = 0
+
+  for (const invoice of db.invoices) {
+    if (invoice.active && !invoice.listNo) outstandingValue += invoice.value
+    if (isGrnPending(invoice)) grnPendingCount += 1
+    if (isReadyToSubmit(invoice)) readyToSubmitCount += 1
+    if (invoice.financeSubmitDate && isSameCalendarMonth(invoice.financeSubmitDate, now)) {
+      submittedThisMonthValue += invoice.value
+    }
+  }
+
+  return { outstandingValue, grnPendingCount, readyToSubmitCount, submittedThisMonthValue }
+}
+
+function averageCycleDays(
+  invoices: Array<{ receivedDate: string; financeSubmitDate: string | null }>,
+): number | null {
+  const submitted = invoices.filter(
+    (inv): inv is { receivedDate: string; financeSubmitDate: string } =>
+      inv.financeSubmitDate !== null,
+  )
+  if (submitted.length === 0) return null
+
+  const totalDays = submitted.reduce((sum, inv) => {
+    const days =
+      (new Date(inv.financeSubmitDate).getTime() - new Date(inv.receivedDate).getTime()) /
+      (1000 * 60 * 60 * 24)
+    return sum + days
+  }, 0)
+  return totalDays / submitted.length
+}
+
+export async function getAverageCycleTimeDays(): Promise<CycleTimeStats> {
+  await delay()
+
+  const now = new Date()
+  const previousMonthReference = new Date(now.getFullYear(), now.getMonth() - 1, 1)
+
+  const overall = averageCycleDays(db.invoices)
+  const currentMonth = averageCycleDays(
+    db.invoices.filter(
+      (inv) => inv.financeSubmitDate && isSameCalendarMonth(inv.financeSubmitDate, now),
+    ),
+  )
+  const previousMonth = averageCycleDays(
+    db.invoices.filter(
+      (inv) =>
+        inv.financeSubmitDate && isSameCalendarMonth(inv.financeSubmitDate, previousMonthReference),
+    ),
+  )
+
+  return {
+    // No submissions at all is a genuine edge case (a brand new deployment) rather than something
+    // that should ever surface with this seed data - 0 is a safe, honest fallback either way.
+    averageDays: overall ?? 0,
+    currentMonthAverageDays: currentMonth,
+    previousMonthAverageDays: previousMonth,
+  }
+}
+
+export async function getMonthlyInvoiceVolume(): Promise<MonthlyInvoiceVolume[]> {
+  await delay()
+
+  const months = trailingMonths()
+  const countByMonth = new Map<string, number>()
+
+  for (const invoice of db.invoices) {
+    const key = monthKey(invoice.receivedDate)
+    countByMonth.set(key, (countByMonth.get(key) ?? 0) + 1)
+  }
+
+  return months.map(({ key, label }) => ({
+    month: key,
+    monthLabel: label,
+    invoiceCount: countByMonth.get(key) ?? 0,
+  }))
+}
+
+export async function getRecentFinanceBatches(limit = 10): Promise<FinanceBatchSummary[]> {
+  await delay()
+
+  const batches = new Map<
+    string,
+    { financeSubmitDate: string; invoiceCount: number; totalValue: number }
+  >()
+
+  for (const invoice of db.invoices) {
+    if (!invoice.listNo || !invoice.financeSubmitDate) continue
+    const existing = batches.get(invoice.listNo)
+    if (existing) {
+      existing.invoiceCount += 1
+      existing.totalValue += invoice.value
+    } else {
+      batches.set(invoice.listNo, {
+        financeSubmitDate: invoice.financeSubmitDate,
+        invoiceCount: 1,
+        totalValue: invoice.value,
+      })
+    }
+  }
+
+  return [...batches.entries()]
+    .map(([listNo, summary]) => ({ listNo, ...summary }))
+    .sort((a, b) => (a.financeSubmitDate < b.financeSubmitDate ? 1 : -1))
+    .slice(0, limit)
 }

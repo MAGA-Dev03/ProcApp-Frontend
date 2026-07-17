@@ -44,6 +44,10 @@ export {
   getAgingBucketBreakdown,
   getTopSuppliersByPayable,
   getReceivedVsSubmittedTrend,
+  getDashboardSummary,
+  getAverageCycleTimeDays,
+  getMonthlyInvoiceVolume,
+  getRecentFinanceBatches,
   seedSummary,
 } from './mock'
 
@@ -81,6 +85,10 @@ export type {
   AgingBucketBreakdown,
   TopSupplier,
   TrendPoint,
+  DashboardSummary,
+  CycleTimeStats,
+  MonthlyInvoiceVolume,
+  FinanceBatchSummary,
 } from './mock/dashboard'
 
 export { ApiError } from './apiError'

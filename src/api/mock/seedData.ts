@@ -267,7 +267,14 @@ export function buildInvoices(
   let id = 1
 
   function buildCoreFields(bucket: InvoiceBucket) {
-    const invoiceDate = daysAgo(randomInt(1, 365))
+    // Lower bound is 21, not 1: the forward chain below (receivedDate +0..5, grnReceivedDate
+    // +1..10, financeSubmitDate +1..5 for SUBMITTED invoices) can add up to 20 days on top of
+    // invoiceDate. Without this buffer, a small fraction of invoices with a very recent
+    // invoiceDate would get a financeSubmitDate in the future - a real bug this seed generator
+    // used to have (a "batch" could appear to be submitted days after the app was even seeded).
+    // True recency for the dashboard's "this month" KPIs comes from the dedicated batch below,
+    // not from letting this general range drift too close to "today".
+    const invoiceDate = daysAgo(randomInt(21, 365))
     const receivedDate = addDays(invoiceDate, randomInt(0, 5))
     const project = randomItem(projects)
     const supplier = randomItem(suppliers)
@@ -279,48 +286,66 @@ export function buildInvoices(
     return { invoiceDate, receivedDate, project, supplier, author, value, hasGrn, grnReceivedDate }
   }
 
+  /** Shared by every submitted batch (randomly-dated and the guaranteed-recent one below) so the
+   * two paths can't drift out of sync on what a "batch" actually writes to each invoice. */
+  function pushSubmittedBatch(
+    batch: Array<{
+      invoiceDate: Date
+      receivedDate: Date
+      project: Project
+      supplier: Supplier
+      author: User
+      value: number
+      grnReceivedDate: Date
+    }>,
+    financeSubmitDate: Date,
+  ) {
+    const listNo = nextListNo(financeSubmitDate)
+    const approver = randomItem(approvers.length > 0 ? approvers : users)
+
+    for (const entry of batch) {
+      const { invoiceDate, receivedDate, project, supplier, author, value, grnReceivedDate } = entry
+      invoices.push({
+        id,
+        invoiceType: randomItem(INVOICE_TYPES),
+        invoiceSource: randomItem(INVOICE_SOURCES),
+        projectId: project.id,
+        supplierId: supplier.id,
+        invoiceNumber: `INV-${project.code.slice(-3)}-${String(id).padStart(4, '0')}`,
+        invoiceDate: toIsoDate(invoiceDate),
+        receivedDate: toIsoDate(receivedDate),
+        purchaseOrderNumber: `PO-${randomInt(10000, 99999)}`,
+        value,
+        pioNumber: `PIO-${randomInt(1000, 9999)}`,
+        grnNumber: `GRN-${randomInt(10000, 99999)}`,
+        grnReceivedDate: toIsoDate(grnReceivedDate),
+        listNo,
+        financeSubmitDate: toIsoDate(financeSubmitDate),
+        remarks: randomItem(REMARKS_SAMPLES),
+        attachmentUrl: Math.random() < 0.7 ? `https://files.maga.lk/invoices/${id}.pdf` : null,
+        attachmentViewed: Math.random() < 0.5,
+        active: true,
+        authorUserId: author.id,
+        updatedByUserId: approver.id,
+        createdAt: toIsoDate(receivedDate),
+        updatedAt: toIsoDate(financeSubmitDate),
+      })
+      id++
+    }
+  }
+
   for (const { bucket, count } of INVOICE_BUCKET_PLAN) {
     if (bucket === 'SUBMITTED') {
       for (const batchSize of SUBMITTED_BATCH_SIZES) {
-        const batch = Array.from({ length: batchSize }, () => buildCoreFields(bucket))
+        const batch = Array.from({ length: batchSize }, () => buildCoreFields(bucket)).map(
+          (entry) => ({ ...entry, grnReceivedDate: entry.grnReceivedDate! }),
+        )
         const latestGrnReceivedDate = batch.reduce(
-          (latest, entry) => (entry.grnReceivedDate! > latest ? entry.grnReceivedDate! : latest),
-          batch[0].grnReceivedDate!,
+          (latest, entry) => (entry.grnReceivedDate > latest ? entry.grnReceivedDate : latest),
+          batch[0].grnReceivedDate,
         )
         const financeSubmitDate = addDays(latestGrnReceivedDate, randomInt(1, 5))
-        const listNo = nextListNo(financeSubmitDate)
-        const approver = randomItem(approvers.length > 0 ? approvers : users)
-
-        for (const entry of batch) {
-          const { invoiceDate, receivedDate, project, supplier, author, value, grnReceivedDate } =
-            entry
-          invoices.push({
-            id,
-            invoiceType: randomItem(INVOICE_TYPES),
-            invoiceSource: randomItem(INVOICE_SOURCES),
-            projectId: project.id,
-            supplierId: supplier.id,
-            invoiceNumber: `INV-${project.code.slice(-3)}-${String(id).padStart(4, '0')}`,
-            invoiceDate: toIsoDate(invoiceDate),
-            receivedDate: toIsoDate(receivedDate),
-            purchaseOrderNumber: `PO-${randomInt(10000, 99999)}`,
-            value,
-            pioNumber: `PIO-${randomInt(1000, 9999)}`,
-            grnNumber: `GRN-${randomInt(10000, 99999)}`,
-            grnReceivedDate: toIsoDate(grnReceivedDate!),
-            listNo,
-            financeSubmitDate: toIsoDate(financeSubmitDate),
-            remarks: randomItem(REMARKS_SAMPLES),
-            attachmentUrl: Math.random() < 0.7 ? `https://files.maga.lk/invoices/${id}.pdf` : null,
-            attachmentViewed: Math.random() < 0.5,
-            active: true,
-            authorUserId: author.id,
-            updatedByUserId: approver.id,
-            createdAt: toIsoDate(receivedDate),
-            updatedAt: toIsoDate(financeSubmitDate),
-          })
-          id++
-        }
+        pushSubmittedBatch(batch, financeSubmitDate)
       }
       continue
     }
@@ -370,6 +395,33 @@ export function buildInvoices(
       id++
     }
   }
+
+  /**
+   * Guaranteed-recent finance batch, on top of the fully-random SUBMITTED batches above. Those
+   * batches' financeSubmitDate is derived from an invoiceDate drawn uniformly over the last 365
+   * days, so "submitted this month" (and "this month vs last month" cycle-time trend) on the
+   * dashboard would land in the current calendar month only by chance - some seed runs would show
+   * a real $0 "Submitted This Month" card, which isn't a meaningful demo. Anchoring one small
+   * batch's financeSubmitDate to a few days ago (and deriving the rest of its dates backward from
+   * that, preserving the normal invoiceDate <= receivedDate <= grnReceivedDate <= financeSubmitDate
+   * ordering) makes that KPI - and the top row of "Recent Finance Batches" - reliably non-trivial.
+   */
+  const recentFinanceSubmitDate = daysAgo(randomInt(1, 5))
+  const recentBatch = Array.from({ length: 4 }, () => {
+    const grnReceivedDate = addDays(recentFinanceSubmitDate, -randomInt(1, 4))
+    const receivedDate = addDays(grnReceivedDate, -randomInt(1, 4))
+    const invoiceDate = addDays(receivedDate, -randomInt(0, 3))
+    return {
+      invoiceDate,
+      receivedDate,
+      grnReceivedDate,
+      project: randomItem(projects),
+      supplier: randomItem(suppliers),
+      author: randomItem(authors.length > 0 ? authors : users),
+      value: randomInt(5_000, 2_500_000),
+    }
+  })
+  pushSubmittedBatch(recentBatch, recentFinanceSubmitDate)
 
   return invoices
 }

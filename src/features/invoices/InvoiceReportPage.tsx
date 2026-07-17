@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
+import { useLocation } from 'react-router-dom'
 import { toast } from 'sonner'
 import { Clipboard, FileSpreadsheet, FileText, Printer } from 'lucide-react'
 import {
@@ -69,7 +70,15 @@ function toListInvoicesParams(
 }
 
 export function InvoiceReportPage() {
-  const [filters, setFilters] = useState<ReportFiltersValue>(EMPTY_FILTERS)
+  // The dashboard's "Recent Finance Batches" feed links here with a listNo pre-selected via
+  // router state (not a URL query param - this is an internal SPA handoff, not a bookmarkable
+  // link), so the manager lands straight on that batch's report instead of an empty filter set.
+  const location = useLocation()
+  const initialListNo = (location.state as { listNo?: string } | null)?.listNo ?? ''
+  const [filters, setFilters] = useState<ReportFiltersValue>({
+    ...EMPTY_FILTERS,
+    listNo: initialListNo,
+  })
   const debouncedFilters = useDebouncedValue(filters, 300)
   const [pageIndex, setPageIndex] = useState(0)
   const [financeReportListNo, setFinanceReportListNo] = useState<string | null>(null)
