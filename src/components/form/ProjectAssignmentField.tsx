@@ -41,7 +41,7 @@ function ListBox({
   const filtered = items.filter((item) => item.label.toLowerCase().includes(search.toLowerCase()))
 
   return (
-    <div className="flex-1 rounded-lg border border-border">
+    <div className="min-w-0 flex-1 rounded-lg border border-border">
       <div className="flex items-center justify-between gap-2 border-b border-border px-3 py-2">
         <span className="text-sm font-medium">
           {title} <span className="text-muted-foreground">({items.length})</span>
@@ -126,7 +126,7 @@ export function ProjectAssignmentField<TFieldValues extends FieldValues>({
 
         return (
           <FormFieldShell label={label} description={description} error={fieldState.error?.message}>
-            <div className="flex flex-col gap-2 sm:flex-row">
+            <div className="flex min-w-0 flex-col gap-2 sm:flex-row">
               <ListBox
                 title="Available"
                 items={available}
