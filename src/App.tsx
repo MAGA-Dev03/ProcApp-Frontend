@@ -1,19 +1,19 @@
-import { RouterProvider } from 'react-router-dom';
-import { ThemeProvider, CssBaseline } from '@mui/material';
-import { QueryClientProvider } from '@tanstack/react-query';
-import { router } from './app/router';
-import { theme } from './app/theme';
-import { queryClient } from './app/queryClient';
+import { QueryClientProvider } from '@tanstack/react-query'
+import { RouterProvider } from 'react-router-dom'
+import { queryClient } from '@/api/queryClient'
+import { AuthProvider } from '@/features/auth'
+import { Toaster } from '@/components/ui/sonner'
+import { router } from '@/routes'
 
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
+      <AuthProvider>
         <RouterProvider router={router} />
-      </ThemeProvider>
+        <Toaster />
+      </AuthProvider>
     </QueryClientProvider>
-  );
+  )
 }
 
-export default App;
+export default App
