@@ -2,6 +2,7 @@ import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 import type { InvoiceWithRelations } from '@/types'
 import { formatCurrency } from '@/lib/format'
+import { assetUrl } from '@/lib/utils'
 
 interface DocWithAutoTable extends jsPDF {
   lastAutoTable: { finalY: number }
@@ -12,7 +13,7 @@ const SIGNATURE_LABELS = ['Prepared By', 'Checked By', 'Certified By', 'Approved
 /** jsPDF's addImage needs the image data up front (base64/data URL), not a URL it can load
  * itself - so the logo is fetched and inlined once per report generation. */
 async function loadLogoDataUrl(): Promise<string> {
-  const response = await fetch('/logo.png')
+  const response = await fetch(assetUrl('/logo.png'))
   const blob = await response.blob()
   return new Promise((resolve, reject) => {
     const reader = new FileReader()

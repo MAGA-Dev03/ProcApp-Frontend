@@ -11,6 +11,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { CurrencyDisplay } from '@/components/CurrencyDisplay'
 import { formatCurrency } from '@/lib/format'
+import { assetUrl } from '@/lib/utils'
 import { downloadFinanceReportPdf } from './financeReportPdf'
 import { exportRowsToExcel, toReportRow } from './reportExport'
 
@@ -56,7 +57,7 @@ export function FinanceReportModal({ listNo, invoices, onOpenChange }: FinanceRe
         {listNo && (
           <>
             <DialogHeader className="flex-row items-center gap-3">
-              <img src="/logo.png" alt="MAGA Engineering" className="h-12 w-auto shrink-0" />
+              <img src={assetUrl('/logo.png')} alt="MAGA Engineering" className="h-12 w-auto shrink-0" />
               <div>
                 <DialogTitle>Payment Submission — Procurement Department</DialogTitle>
                 <DialogDescription>

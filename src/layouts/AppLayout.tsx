@@ -13,7 +13,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
-import { cn } from '@/lib/utils'
+import { assetUrl, cn } from '@/lib/utils'
 import { useAuth, useHasRole } from '@/features/auth'
 import { NAV_ITEMS } from '@/routes/navConfig'
 
@@ -100,13 +100,13 @@ export function AppLayout() {
               aria-label="Expand sidebar"
               className="rounded-md bg-white p-1 shadow-sm"
             >
-              <img src="/logo-mark.png" alt="" className="size-6" />
+              <img src={assetUrl('/logo-mark.png')} alt="" className="size-6" />
             </button>
           ) : (
             <>
               <div className="flex min-w-0 items-center gap-2">
                 <span className="shrink-0 rounded-md bg-white p-1 shadow-sm">
-                  <img src="/logo.png" alt="MAGA Engineering" className="h-7 w-auto" />
+                  <img src={assetUrl('/logo.png')} alt="MAGA Engineering" className="h-7 w-auto" />
                 </span>
                 <span className="truncate font-semibold">ProcApp</span>
               </div>
@@ -134,7 +134,7 @@ export function AppLayout() {
         >
           <SheetHeader className="flex-row items-center gap-2 border-b border-sidebar-border">
             <span className="shrink-0 rounded-md bg-white p-1 shadow-sm">
-              <img src="/logo.png" alt="MAGA Engineering" className="h-7 w-auto" />
+              <img src={assetUrl('/logo.png')} alt="MAGA Engineering" className="h-7 w-auto" />
             </span>
             <SheetTitle>ProcApp</SheetTitle>
           </SheetHeader>
