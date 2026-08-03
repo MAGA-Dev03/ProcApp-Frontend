@@ -9,6 +9,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Button } from '@/components/ui/button'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { ApiError } from '@/api/client'
+import { assetUrl } from '@/lib/utils'
 import { useAuth } from './AuthContext'
 import { loginSchema, type LoginFormValues } from './validation'
 
@@ -43,7 +44,7 @@ export function LoginPage() {
 
   return (
     <div className="flex min-h-svh flex-col items-center justify-center gap-6 bg-muted/30 p-4">
-      <img src="/logo.png" alt="MAGA Engineering" className="h-16 w-auto" />
+      <img src={assetUrl('/logo.png')} alt="MAGA Engineering" className="h-16 w-auto" />
       <Card className="w-full max-w-sm">
         <CardHeader>
           <CardTitle>Sign in to ProcApp</CardTitle>
