@@ -105,4 +105,4 @@ export const router = createBrowserRouter([
       { path: 'style-guide', element: <StyleGuidePage /> },
     ],
   },
-])
+], { basename: import.meta.env.BASE_URL })

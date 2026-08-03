@@ -22,6 +22,7 @@ function printTestLogins(): Plugin {
 
 // https://vite.dev/config/
 export default defineConfig({
+  base: process.env.GITHUB_PAGES ? '/ProcApp-Frontend/' : '/',
   plugins: [react(), tailwindcss(), printTestLogins()],
   resolve: {
     alias: {
