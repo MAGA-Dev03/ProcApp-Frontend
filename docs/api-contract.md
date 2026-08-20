@@ -660,6 +660,58 @@ whichever months happen to have data.
 
 **Authorization:** SENIOR_MANAGER.
 
+### `GET /api/dashboard/summary`
+
+**Response `200`:**
+```ts
+interface DashboardSummary {
+  outstandingValue: number       // sum of value where active && listNo is null
+  grnPendingCount: number        // count where active && (grnNumber or grnReceivedDate is null)
+  readyToSubmitCount: number     // count where active && grnNumber && grnReceivedDate && listNo is null
+  submittedThisMonthValue: number // sum of value where financeSubmitDate falls in the current calendar month
+}
+```
+
+**Authorization:** SENIOR_MANAGER.
+
+### `GET /api/dashboard/cycle-time`
+
+**Response `200`:**
+```ts
+interface CycleTimeStats {
+  averageDays: number                    // avg (financeSubmitDate - receivedDate) over all-time
+                                          // submitted invoices; 0 if none exist yet (not null - a
+                                          // brand-new deployment is a genuine edge case, and 0 is a
+                                          // safe, honest fallback for it)
+  currentMonthAverageDays: number | null  // same average, scoped to invoices whose financeSubmitDate
+                                          // falls in the current calendar month; null if none
+  previousMonthAverageDays: number | null // same, scoped to the previous calendar month; null if none
+}
+```
+
+**Business rule:** `null` (not `0`) for a month with zero submissions — the UI skips the trend
+comparison line rather than plotting a misleading zero. Don't collapse the null case to `0`.
+
+**Authorization:** SENIOR_MANAGER.
+
+### `GET /api/dashboard/monthly-volume`
+
+**Response `200`:** `MonthlyInvoiceVolume[]`, always exactly 12 entries covering the trailing 12
+calendar months (oldest first, same fixed window as the trend endpoint above), each
+`{ month: "YYYY-MM", monthLabel: "Jan 2026", invoiceCount }`. `invoiceCount` is grouped by the month
+of `receivedDate`, across **all** invoices regardless of `active` — a cancelled invoice still counts
+toward the month it was received in. Months with no activity must still appear with `invoiceCount: 0`.
+
+**Authorization:** SENIOR_MANAGER.
+
+### `GET /api/dashboard/recent-finance-batches?limit=10`
+
+**Response `200`:** `FinanceBatchSummary[]`, `{ listNo, financeSubmitDate, invoiceCount, totalValue }`
+— one entry per distinct `listNo` among invoices that have both `listNo` and `financeSubmitDate`
+set, sorted by `financeSubmitDate` descending, truncated to `limit` (default 10).
+
+**Authorization:** SENIOR_MANAGER.
+
 ---
 
 ## Endpoints intentionally out of scope for this contract
