@@ -76,7 +76,6 @@ public class SecurityConfig {
     @Bean
 public AuthenticationEntryPoint authenticationEntryPoint() {
     return (request, response, authException) -> {
-        System.out.println("EntryPoint fired for: " + request.getRequestURI() + " reason=" + authException.getMessage());
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType("application/json");
         response.getWriter().write("{\"message\":\"Authentication required\",\"status\":401}");
@@ -86,8 +85,6 @@ public AuthenticationEntryPoint authenticationEntryPoint() {
     @Bean
     public AccessDeniedHandler accessDeniedHandler() {
         return (request, response, accessDeniedException) -> {
-            System.out.println("AccessDeniedHandler fired for: " + request.getRequestURI()
-                    + " committed=" + response.isCommitted());
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             response.setContentType("application/json");
             response.getWriter().write("{\"message\":\"Access denied\",\"status\":403}");

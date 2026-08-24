@@ -33,10 +33,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     ) throws ServletException, IOException {
 
         String header = request.getHeader("Authorization");
-        System.out.println("Incoming Authorization header: [" + header + "]");
 
         if (header == null || !header.startsWith("Bearer ")) {
-            System.out.println("Header missing or doesn't start with 'Bearer ' -> skipping auth");
             filterChain.doFilter(request, response);
             return;
         }
@@ -61,12 +59,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     userId, null, authorities
             );
             SecurityContextHolder.getContext().setAuthentication(authToken);
-            System.out.println("Authenticated userId=" + userId + " authorities=" + authorities
-                    + " isAuthenticated=" + authToken.isAuthenticated());
 
         } catch (JwtException | IllegalArgumentException e) {
-            System.out.println("JWT validation failed: " + e.getClass().getSimpleName() + " - " + e.getMessage());
-             SecurityContextHolder.clearContext();
+            SecurityContextHolder.clearContext();
         }
 
         filterChain.doFilter(request, response);
