@@ -33,8 +33,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     ) throws ServletException, IOException {
 
         String header = request.getHeader("Authorization");
+        System.out.println("[" + request.getMethod() + " " + request.getRequestURI() + "] Authorization header: [" + header + "]");
 
         if (header == null || !header.startsWith("Bearer ")) {
+            System.out.println("Header missing or malformed -> skipping auth");
             filterChain.doFilter(request, response);
             return;
         }
@@ -44,6 +46,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             Claims claims = jwtService.parseClaims(token);
             Long userId = claims.get("userId", Long.class);
+            System.out.println("Token parsed OK for userId=" + userId);
             @SuppressWarnings("unchecked")
             List<String> roles = claims.get("roles", List.class);
 
