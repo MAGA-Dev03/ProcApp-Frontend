@@ -6,8 +6,17 @@ import jakarta.persistence.criteria.JoinType;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Set;
 
 public class InvoiceSpecifications {
+
+    public static Specification<Invoice> scopedToProjectIds(Set<Long> allowedProjectIds) {
+        return (root, query, cb) -> {
+            if (allowedProjectIds == null) return null; // null = unrestricted (allProjects user)
+            if (allowedProjectIds.isEmpty()) return cb.disjunction(); // no projects assigned = sees nothing
+            return root.get("project").get("id").in(allowedProjectIds);
+        };
+    }
 
     public static Specification<Invoice> projectId(Long projectId) {
         return (root, query, cb) -> projectId == null ? null :

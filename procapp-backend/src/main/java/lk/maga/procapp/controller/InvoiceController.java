@@ -1,6 +1,8 @@
 package lk.maga.procapp.controller;
 
+import jakarta.persistence.PostRemove;
 import jakarta.validation.Valid;
+import lk.maga.procapp.dto.GrnRequest;
 import lk.maga.procapp.dto.InvoiceRequest;
 import lk.maga.procapp.dto.InvoiceResponse;
 import lk.maga.procapp.dto.PageResponse;
@@ -89,4 +91,39 @@ public class InvoiceController {
         boolean isDuplicate = invoiceService.checkDuplicate(supplierId, invoiceNumber, excludeInvoiceId);
         return java.util.Map.of("isDuplicate", isDuplicate);
     }
+
+    @PostMapping("/{id}/cancel")
+    @PreAuthorize("hasRole('" + RoleNames.PROCUREMENT_MANAGER + "')")
+    public InvoiceResponse cancel(@PathVariable Long id, Authentication authentication) {
+        Long userId = (Long) authentication.getPrincipal();
+        return new InvoiceResponse(invoiceService.cancel(id, userId), statusService);
+    }
+
+    @PostMapping("/{id}/activate")
+    @PreAuthorize("hasRole('" + RoleNames.PROCUREMENT_MANAGER + "')")
+    public InvoiceResponse activate(@PathVariable Long id, Authentication authentication){
+        Long userId = (Long) authentication.getPrincipal();
+        return new InvoiceResponse(invoiceService.activate(id, userId), statusService);
+    }
+
+    @PostMapping("/{id}/grn")
+    public InvoiceResponse setGrn(
+        @PathVariable Long id, @Valid @RequestBody GrnRequest req, Authentication authentication 
+    ) {
+        Long userId = (Long) authentication.getPrincipal();
+        return new InvoiceResponse(invoiceService.setGrn(id, req.getGrnNumber(), userId), statusService);
+    }
+
+    @PostMapping("/{id}/attachment-viewed")
+    public InvoiceResponse markAttachmentViewed(@PathVariable Long id) {
+        return new InvoiceResponse(invoiceService.markAttachmentViewed(id), statusService);
+
+    }
+
+    @PostMapping("/{id}/clear-finance-submission")
+    public InvoiceResponse clearFinanceSubmission(@PathVariable Long id, Authentication authentication) {
+        Long userId = (Long) authentication.getPrincipal();
+        return new InvoiceResponse(invoiceService.clearFinanceSubmission(id, userId), statusService);
+    }
+    
 }

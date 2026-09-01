@@ -34,6 +34,12 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(422).body(error);
     }
 
+    @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
+    public ResponseEntity<ApiError> handleAccessDenied(org.springframework.security.access.AccessDeniedException ex) {
+        ApiError error = new ApiError("Access denied", 403, null);
+        return ResponseEntity.status(403).body(error);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiError> handleGeneric(Exception ex) {
         ex.printStackTrace();

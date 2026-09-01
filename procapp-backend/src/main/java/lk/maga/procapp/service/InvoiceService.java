@@ -182,4 +182,65 @@ public class InvoiceService {
         inv.setRemarks(req.getRemarks());
         inv.setAttachmentUrl(req.getAttachmentUrl());
     }
+
+    @Transactional
+    public Invoice cancel(Long id, Long currentUserId) {
+        Invoice inv = getOrThrow(id);
+        inv.setActive(false);
+        inv.setUpdatedBy(userRepository.findById(currentUserId).orElse(null));
+        inv.setUpdatedAt(OffsetDateTime.now());
+        return invoiceRepository.save(inv);
+    }
+
+    @Transactional
+    public Invoice activate(Long id, Long currentUserId) {
+        Invoice inv = getOrThrow(id);
+        inv.setActive(true);
+        inv.setUpdatedBy(userRepository.findById(currentUserId).orElse(null));
+        inv.setUpdatedAt(OffsetDateTime.now());
+        return invoiceRepository.save(inv);
+
+    }
+
+    @Transactional
+    public Invoice setGrn(Long id, String grnNumber, Long currentUserId) {
+        Invoice inv = getOrThrow(id);
+        inv.setGrnNumber(grnNumber);
+        inv.setUpdatedBy(userRepository.findById(currentUserId).orElse(null));
+        inv.setUpdatedAt(OffsetDateTime.now());
+        return invoiceRepository.save(inv);
+    }
+
+    @Transactional
+    public Invoice markAttachmentViewed(Long id) {
+        Invoice inv = getOrThrow(id);
+        inv.setAttachmentViewed(true);
+        return invoiceRepository.save(inv);
+    }
+
+    @Transactional
+    public Invoice clearFinanceSubmission(Long id, Long currentUserId) {
+        Invoice inv = getOrThrow(id);
+        inv.setListNo(null);
+        inv.setFinanceSubmitDate(null);
+        inv.setUpdatedBy(userRepository.findById(currentUserId).orElse(null));
+        inv.setUpdatedAt(OffsetDateTime.now());
+        return invoiceRepository.save(inv);
+    }
+
+    public Page<Invoice> listForSiteKeeper(Long userId, Long requestedProjectId, Pageable pageable) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid session user"));
+        java.util.Set<Long> allowedProjectIds = user.isAllProjects()
+                ? null
+                : user.getProjects().stream().map(Project::getId).collect(java.util.stream.Collectors.toSet());    
+        Specification<Invoice> spec = Specification
+                .where(InvoiceSpecifications.scopedToProjectIds(allowedProjectIds))
+                .and(InvoiceSpecifications.withFetchedRelations());
+                
+        if (requestedProjectId != null) {
+            spec = spec.and(InvoiceSpecifications.projectId(requestedProjectId));
+        }       
+        return invoiceRepository.findAll(spec, pageable);
+    }
 }
