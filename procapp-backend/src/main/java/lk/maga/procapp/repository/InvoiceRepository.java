@@ -33,4 +33,11 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long>, JpaSpec
         @Param("invoiceNumber") String invoiceNumber,
         @Param("excludeInvoiceId") Long excludeInvoiceId
     );
+
+    // Counts distinct listNo values already recorded for a given YYYY/MM
+    // prefix, across ALL invoices ever created — not scoped to today, not
+    // scoped to the current batch. This is the exact fix for the legacy bug
+    // where the sequence reset daily instead of monthly.
+    @Query(value = "SELECT COUNT(DISTINCT list_no) FROM invoices WHERE list_no LIKE :prefix", nativeQuery = true)
+    long countDistinctListNoWithPrefix(@Param("prefix") String prefix);
 }

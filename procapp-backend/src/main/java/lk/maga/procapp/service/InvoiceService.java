@@ -26,6 +26,9 @@ import java.time.OffsetDateTime;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class InvoiceService {
@@ -242,5 +245,59 @@ public class InvoiceService {
             spec = spec.and(InvoiceSpecifications.projectId(requestedProjectId));
         }       
         return invoiceRepository.findAll(spec, pageable);
+    }
+
+    public record BatchResult(String listNo, int invoiceCount) {}
+
+    @Transactional
+    public BatchResult batchAddToFinance(List<Long> invoiceIds, Long currentUserId) {
+        List<Invoice> invoices = invoiceRepository.findAllById(invoiceIds);
+
+        // --- Validate the ENTIRE batch first. Nothing below this point
+        // mutates anything. If any check fails, we throw before a single
+        // save() call happens — this is the actual fix for the legacy bug
+        // class, where a partial failure mid-loop left earlier invoices
+        // silently submitted. ---
+
+        if (invoices.size() != invoiceIds.size()) {
+            Set<Long> foundIds = invoices.stream().map(Invoice::getId).collect(Collectors.toSet());
+            List<Long> missing = invoiceIds.stream().filter(id -> !foundIds.contains(id)).toList();
+            throw new ValidationException(Map.of("invoiceIds", "Invoice id(s) not found: " + missing));
+        }
+
+        List<Long> missingGrn = invoices.stream()
+                .filter(i -> i.getGrnNumber() == null || i.getGrnNumber().isBlank())
+                .map(Invoice::getId)
+                .toList();
+        if (!missingGrn.isEmpty()) {
+            throw new ValidationException(Map.of(
+                    "invoiceIds",
+                    "Invoice id(s) cannot be submitted to finance without a GRN: " + missingGrn
+            ));
+        }
+
+        // --- Validation passed for the whole batch. Now generate ONE shared
+        // listNo and apply it to every invoice in the batch. ---
+
+        LocalDate today = LocalDate.now();
+        String monthPrefix = String.format("%04d/%02d/", today.getYear(), today.getMonthValue());
+        long countThisMonth = invoiceRepository.countDistinctListNoWithPrefix(monthPrefix + "%");
+        String listNo = String.format(
+                "%04d/%02d/%02d/%03d",
+                today.getYear(), today.getMonthValue(), today.getDayOfMonth(), countThisMonth + 1
+        );
+
+        User updatedBy = userRepository.findById(currentUserId).orElse(null);
+        OffsetDateTime now = OffsetDateTime.now();
+
+        for (Invoice inv : invoices) {
+            inv.setListNo(listNo);
+            inv.setFinanceSubmitDate(today);
+            inv.setUpdatedBy(updatedBy);
+            inv.setUpdatedAt(now);
+        }
+        invoiceRepository.saveAll(invoices);
+
+        return new BatchResult(listNo, invoices.size());
     }
 }

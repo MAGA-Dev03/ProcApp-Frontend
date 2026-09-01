@@ -10,6 +10,8 @@ import lk.maga.procapp.entity.Invoice;
 import lk.maga.procapp.security.RoleNames;
 import lk.maga.procapp.service.InvoiceService;
 import lk.maga.procapp.service.InvoiceStatusService;
+import lk.maga.procapp.dto.BatchAddToFinanceRequest;
+import lk.maga.procapp.dto.BatchAddToFinanceResponse;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -53,7 +55,7 @@ public class InvoiceController {
         return PageResponse.from(page, inv -> new InvoiceResponse(inv, statusService));
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/{id:\\d+}")
     public InvoiceResponse getOne(@PathVariable Long id) {
         return new InvoiceResponse(invoiceService.getOrThrow(id), statusService);
     }
@@ -124,6 +126,15 @@ public class InvoiceController {
     public InvoiceResponse clearFinanceSubmission(@PathVariable Long id, Authentication authentication) {
         Long userId = (Long) authentication.getPrincipal();
         return new InvoiceResponse(invoiceService.clearFinanceSubmission(id, userId), statusService);
+    }
+    
+    @PostMapping("/batch-add-to-finance")
+    public BatchAddToFinanceResponse batchAddToFinance(
+        @Valid @RequestBody BatchAddToFinanceRequest req, Authentication authentication
+    ) {
+        Long userId = (Long) authentication.getPrincipal();
+        var result = invoiceService.batchAddToFinance(req.getInvoiceIds(), userId);
+        return new BatchAddToFinanceResponse(result.listNo(), result.invoiceCount());
     }
     
 }
