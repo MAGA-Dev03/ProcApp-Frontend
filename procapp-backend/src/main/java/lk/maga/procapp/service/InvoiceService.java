@@ -42,12 +42,14 @@ public class InvoiceService {
             InvoiceRepository invoiceRepository,
             ProjectRepository projectRepository,
             SupplierRepository supplierRepository,
-            UserRepository userRepository
+            UserRepository userRepository,
+            FileStorageService fileStorageService
     ) {
         this.invoiceRepository = invoiceRepository;
         this.projectRepository = projectRepository;
         this.supplierRepository = supplierRepository;
         this.userRepository = userRepository;
+        this.fileStorageService = fileStorageService;
     }
 
     public Page<Invoice> list(
@@ -299,5 +301,28 @@ public class InvoiceService {
         invoiceRepository.saveAll(invoices);
 
         return new BatchResult(listNo, invoices.size());
+    }
+
+    private final FileStorageService fileStorageService;
+
+    @Transactional
+    public Invoice uploadAttachment(Long id, org.springframework.web.multipart.MultipartFile file, Long currentUserId) {
+        Invoice inv = getOrThrow(id);
+        String storedKey = fileStorageService.store(file);
+        inv.setAttachmentUrl(storedKey);
+        inv.setAttachmentViewed(false);
+        inv.setUpdatedBy(userRepository.findById(currentUserId).orElse(null));
+        inv.setUpdatedAt(OffsetDateTime.now());
+        return invoiceRepository.save(inv);
+
+    }
+
+    public java.nio.file.Path resolveAttachmentPath(Long id) {
+        Invoice inv = getOrThrow(id);
+        if (inv.getAttachmentUrl() == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "This invoice has no attachment");
+
+        }
+        return fileStorageService.resolve(inv.getAttachmentUrl());
     }
 }

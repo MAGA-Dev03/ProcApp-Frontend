@@ -136,5 +136,33 @@ public class InvoiceController {
         var result = invoiceService.batchAddToFinance(req.getInvoiceIds(), userId);
         return new BatchAddToFinanceResponse(result.listNo(), result.invoiceCount());
     }
+
+    @PostMapping("/{id}/attachment")
+    public InvoiceResponse uploadAttachment(
+        @PathVariable Long id,
+        @org.springframework.web.bind.annotation.RequestParam("file") org.springframework.web.multipart.MultipartFile file,
+        Authentication authentication
+    ) {
+        Long userId = (Long) authentication.getPrincipal();
+        Invoice updated = invoiceService.uploadAttachment(id, file, userId);
+        return new InvoiceResponse(updated, statusService);
+
+    }
+
+    @GetMapping("/{id}/attachment")
+    public org.springframework.http.ResponseEntity<org.springframework.core.io.Resource> downloadAttachment(
+        @PathVariable Long id
+    ) throws java.io.IOException {
+        java.nio.file.Path path = invoiceService.resolveAttachmentPath(id);
+        org.springframework.core.io.Resource resource = new org.springframework.core.io.UrlResource(path.toUri());
+        String contentType = java.nio.file.Files.probeContentType(path);
+        if (contentType == null) contentType = "application/octet-stream";
+
+        return org.springframework.http.ResponseEntity.ok()
+                .contentType(org.springframework.http.MediaType.parseMediaType(contentType))
+                .header(org.springframework.http.HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + path.getFileName() + "\"" )
+                .body(resource);
+
+    }
     
 }
