@@ -133,7 +133,14 @@ public class UserService {
         // the fix for the legacy hidden-id IDOR bug: the row to update
         // came only from the verified JWT subject above, never from any
         // client-supplied field.
-        return userRepository.save(u);
+        //
+        // `u` is already managed by this transaction, so the field changes
+        // above are persisted on commit via dirty checking. Do NOT call
+        // save()/merge() here: merge deep-copies the eager role/project
+        // collections (CollectionType.replaceElements -> PersistentSet.clear())
+        // and throws UnsupportedOperationException whenever either collection
+        // was built from an immutable Set.
+        return u;
     }
 
     @Transactional

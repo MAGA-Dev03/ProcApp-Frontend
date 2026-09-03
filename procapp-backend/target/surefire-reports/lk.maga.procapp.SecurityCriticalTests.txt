@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: lk.maga.procapp.SecurityCriticalTests
+-------------------------------------------------------------------------------
+Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 7.524 s -- in lk.maga.procapp.SecurityCriticalTests
