@@ -3,6 +3,8 @@ package lk.maga.procapp.controller;
 import jakarta.validation.Valid;
 import lk.maga.procapp.dto.LoginRequest;
 import lk.maga.procapp.dto.LoginResponse;
+import lk.maga.procapp.dto.RoleResponse;
+import lk.maga.procapp.dto.ProjectResponse;
 import lk.maga.procapp.security.CustomUserDetails;
 import lk.maga.procapp.security.JwtService;
 import org.springframework.http.ResponseEntity;
@@ -48,19 +50,17 @@ public class AuthController {
 
         CustomUserDetails userDetails = (CustomUserDetails) authResult.getPrincipal();
         String token = jwtService.generateToken(userDetails);
+        lk.maga.procapp.entity.User u = userDetails.getUser();
 
-        List<String> roleNames = userDetails.getUser().getRoles().stream()
-                .map(r -> r.getName())
-                .toList();
+        List<RoleResponse> roles = u.getRoles().stream().map(RoleResponse::new).toList();
+        List<ProjectResponse> projects = u.getProjects().stream().map(ProjectResponse::new).toList();
 
-        LoginResponse.UserSummary summary = new LoginResponse.UserSummary(
-                userDetails.getId(),
-                userDetails.getUser().getName(),
-                userDetails.getUsername(),
-                userDetails.getUser().isAllProjects(),
-                roleNames
+        LoginResponse.UserPayload payload = new LoginResponse.UserPayload(
+            u.getId(), u.getName(), u.getEmail(), u.isAllProjects(), u.isActive(),
+            u.getCreatedAt(), roles, projects
         );
 
-        return ResponseEntity.ok(new LoginResponse(token, summary));
+        return ResponseEntity.ok(new LoginResponse(token, payload));
+        
     }
 }

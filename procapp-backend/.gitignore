@@ -1,2 +1,2 @@
-# VS Code (launch.json holds local secrets)
+target/
 .vscode/
