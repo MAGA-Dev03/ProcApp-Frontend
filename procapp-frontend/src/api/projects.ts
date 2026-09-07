@@ -25,7 +25,7 @@ export async function listProjects(params: ListProjectParams = {}): Promise<Page
 }
 
 export async function getProject(id: number): Promise<Project> {
-    return http<Project>('/api/projects/${id}')
+    return http<Project>(`/api/projects/${id}`)
 }
 
 export async function createProject(payload: CreateProjectPayload): Promise<Project> {
@@ -36,13 +36,13 @@ export async function updateProject(id: number, payload: UpdateProjectPayload): 
     const current = await getProject(id)
     const merged = { ...current, ...payload }
     const { id: _id, ...body } = merged as any
-    return http<Project>('/api/projects/${id}' , { method: 'PUT', body })
+    return http<Project>(`/api/projects/${id}` , { method: 'PUT', body })
 }
 
 export async function getProjectDeleteImpact(id: number): Promise<ProjectDeleteImpact> {
-    return http<ProjectDeleteImpact>('/api/projects/${id}/delete-impact')
+    return http<ProjectDeleteImpact>(`/api/projects/${id}/delete-impact`)
 }
 
 export async function deleteProject(id: number): Promise<void> {
-    await http<void>('/api/projects/${id}', { method: 'DELETE' }) 
+    await http<void>(`/api/projects/${id}`, { method: 'DELETE' }) 
 }

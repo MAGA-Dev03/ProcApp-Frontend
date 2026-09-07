@@ -6,11 +6,6 @@
  * (e.g. `Page<T>`) are already modeled on the real API, so feature code won't need to change.
  */
 export {
-  listSuppliers,
-  getSupplier,
-  createSupplier,
-  updateSupplier,
-  deleteSupplier,
   listUsers,
   getUser,
   createUser,
@@ -38,6 +33,14 @@ export {
   deleteProject,
   getProjectDeleteImpact,
 } from './projects'
+
+export {
+  listSuppliers,
+  getSupplier,
+  createSupplier,
+  updateSupplier,
+  deleteSupplier,
+} from './suppliers'
 
 export {
   listInvoices,
