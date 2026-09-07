@@ -6,8 +6,6 @@
  * (e.g. `Page<T>`) are already modeled on the real API, so feature code won't need to change.
  */
 export {
-  listRoles,
-  createRole,
   getAgingBuckets,
   getAgingBucketBreakdown,
   getTopSuppliersByPayable,
@@ -27,6 +25,11 @@ export {
   deleteUser,
   updateOwnProfile,
 } from './users'
+
+export {
+  listRoles,
+  createRole,
+} from './roles'  
 
 export {
   listProjects,

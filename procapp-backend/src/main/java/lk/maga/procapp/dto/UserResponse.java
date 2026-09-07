@@ -14,7 +14,7 @@ public class UserResponse {
     private final boolean allProjects;
     private final boolean active;
     private final OffsetDateTime createdAt;
-    private final List<String> roles;
+    private final List<RoleResponse> roles;
     private final List<ProjectResponse> projects;
 
     public UserResponse(User u) {
@@ -25,7 +25,7 @@ public class UserResponse {
         this.active = u.isActive();
         this.createdAt = u.getCreatedAt();
         // password_hash is deliberately never included here.
-        this.roles = u.getRoles().stream().map(r -> r.getName()).toList();
+        this.roles = u.getRoles().stream().map(RoleResponse::new).toList();
         this.projects = u.getProjects().stream().map(ProjectResponse::new).toList();
     }
 }
