@@ -160,6 +160,10 @@ public class UserService {
         Set<Role> roles = new HashSet<>();
         if (roleIds == null) return roles;
         for (Long id : roleIds) {
+            if (id == null) {
+                fieldErrors.put("roleIds", "Role id must not be null.");
+                continue;
+            }
             roleRepository.findById(id).ifPresentOrElse(
                     roles::add,
                     () -> fieldErrors.put("roleIds", "Role id " + id + " does not exist.")
@@ -172,6 +176,10 @@ public class UserService {
         Set<Project> projects = new HashSet<>();
         if (projectIds == null) return projects;
         for (Long id : projectIds) {
+            if (id == null) {
+                fieldErrors.put("projectIds", "Project id must not be null.");
+                continue;
+            }
             projectRepository.findById(id).ifPresentOrElse(
                     projects::add,
                     () -> fieldErrors.put("projectIds", "Project id " + id + " does not exist.")

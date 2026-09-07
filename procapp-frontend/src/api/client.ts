@@ -6,12 +6,6 @@
  * (e.g. `Page<T>`) are already modeled on the real API, so feature code won't need to change.
  */
 export {
-  listUsers,
-  getUser,
-  createUser,
-  updateUser,
-  deleteUser,
-  updateOwnProfile,
   listRoles,
   createRole,
   getAgingBuckets,
@@ -24,6 +18,15 @@ export {
   getRecentFinanceBatches,
   seedSummary,
 } from './mock'
+
+export {
+  listUsers,
+  getUser,
+  createUser,
+  updateUser,
+  deleteUser,
+  updateOwnProfile,
+} from './users'
 
 export {
   listProjects,
