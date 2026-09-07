@@ -113,13 +113,10 @@ export async function createInvoice(payload: CreateInvoicePayload): Promise<Invo
 }
 
 export async function updateInvoice(id: number, payload: UpdateInvoicePayload): Promise<Invoice> {
-  // Backend requires the FULL invoice object on PUT (immutable-field
-  // guards need to compare against the real current state). Fetch-then-
-  // merge here keeps every partial-update call site elsewhere unchanged.
   const current = await getInvoice(id)
   const merged = { ...current, ...payload }
   const { id: _id, createdAt: _createdAt, authorUserId: _authorUserId, ...body } = merged as any
-  const raw = await http<any>(`/api/invoices/${id}`, { method: 'PUT', body: merged })
+  const raw = await http<any>(`/api/invoices/${id}`, { method: 'PUT', body })
   return adaptInvoice(raw)
 }
 
