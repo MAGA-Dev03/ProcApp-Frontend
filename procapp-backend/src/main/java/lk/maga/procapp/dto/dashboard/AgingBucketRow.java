@@ -7,8 +7,8 @@ import java.math.BigDecimal;
 
 @Getter
 @AllArgsConstructor
-public class TrendPoint {
-    private String month;
-    private BigDecimal receivedValue;
-    private BigDecimal submittedValue;
+public class AgingBucketRow {
+    private String bucket;
+    private BigDecimal totalValue;
+    private long invoiceCount;
 }

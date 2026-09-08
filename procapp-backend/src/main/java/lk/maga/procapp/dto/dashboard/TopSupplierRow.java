@@ -7,9 +7,8 @@ import java.math.BigDecimal;
 
 @Getter
 @AllArgsConstructor
-public class AgingBucketResponse {
-    private String bucket;
-    private long count;
-    private BigDecimal totalAmount;
-    
+public class TopSupplierRow {
+    private Long supplierId;
+    private String supplierName;
+    private BigDecimal outstandingValue;
 }

@@ -6,6 +6,7 @@ import lk.maga.procapp.service.DashboardService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -13,7 +14,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/dashboard")
 @PreAuthorize("hasRole('" + RoleNames.SENIOR_MANAGER + "')")
-
 public class DashboardController {
 
     private final DashboardService dashboardService;
@@ -28,13 +28,18 @@ public class DashboardController {
     }
 
     @GetMapping("/aging-buckets")
-    public List<AgingBucketResponse> agingBuckets() {
+    public List<AgingBucketRow> agingBuckets() {
         return dashboardService.agingBuckets();
     }
 
     @GetMapping("/aging-buckets/breakdown")
-    public List<AgingBreakdownRow> agingBreakdown() {
-        return dashboardService.agingBreakdown();
+    public AgingBucketBreakdownResponse agingBreakdown(@RequestParam String bucket) {
+        return dashboardService.agingBucketBreakdown(bucket);
+    }
+
+    @GetMapping("/top-suppliers")
+    public List<TopSupplierRow> topSuppliers(@RequestParam(defaultValue = "10") int limit) {
+        return dashboardService.topSuppliers(limit);
     }
 
     @GetMapping("/received-vs-submitted-trend")
@@ -43,7 +48,7 @@ public class DashboardController {
     }
 
     @GetMapping("/monthly-volume")
-    public  List<MonthlyVolumePoint> monthlyVolume() {
+    public List<MonthlyVolumePoint> monthlyVolume() {
         return dashboardService.monthlyVolume();
     }
 

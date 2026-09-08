@@ -8,13 +8,12 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class DashboardSummaryResponse {
-    private long outstandingCount;
+    /** Sum of value where active && list_no IS NULL - the open receivable. */
     private BigDecimal outstandingValue;
-    private long totalActiveCount;
-    private long totalInvoiceCount;
-    private long currentMonthReceivedCount;
-    private long currentMonthSubmittedCount;
-    private double averageCycleTimeDays;
-
-    
+    /** Count of active invoices whose GRN process isn't complete yet. */
+    private long grnPendingCount;
+    /** Count of active invoices with GRN complete but not yet batched to finance. */
+    private long readyToSubmitCount;
+    /** Sum of value where finance_submit_date falls in the current calendar month. */
+    private BigDecimal submittedThisMonthValue;
 }

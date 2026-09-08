@@ -14,8 +14,10 @@ export {
   getAverageCycleTimeDays,
   getMonthlyInvoiceVolume,
   getRecentFinanceBatches,
-  seedSummary,
-} from './mock'
+} from './dashboard'
+
+// Dev-only seed helper - stays on the mock db, it has no real-backend equivalent.
+export { seedSummary } from './mock'
 
 export {
   listUsers,
@@ -105,6 +107,6 @@ export type {
   CycleTimeStats,
   MonthlyInvoiceVolume,
   FinanceBatchSummary,
-} from './mock/dashboard'
+} from './dashboard'
 
 export { ApiError } from './apiError'
