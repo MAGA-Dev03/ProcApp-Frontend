@@ -2,7 +2,12 @@ import { useMemo, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { Clipboard, FileSpreadsheet, FileText, Printer } from 'lucide-react'
-import { listAllSuppliers, listInvoicesForSiteKeeper, markAttachmentViewed } from '@/api/client'
+import {
+  listAllProjects,
+  listAllSuppliers,
+  listInvoicesForSiteKeeper,
+  markAttachmentViewed,
+} from '@/api/client'
 import type { InvoiceWithRelations } from '@/types'
 import { PageHeader } from '@/components/PageHeader'
 import { DataTable } from '@/components/data-table'
@@ -44,15 +49,22 @@ export function SiteKeeperPage() {
 
   // Scoped to what this user can see: allProjects users get the full list, everyone else only
   // sees the projects already resolved onto their own user record (their real scope, not a
-  // client-editable filter) - the same scope the mock API enforces server-side below.
+  // client-editable filter) - the same scope the backend enforces server-side below.
+  const projectsQuery = useQuery({
+    queryKey: ['projects', 'all'],
+    queryFn: listAllProjects,
+    enabled: Boolean(currentUser?.allProjects),
+  })
   const suppliersQuery = useQuery({
     queryKey: ['suppliers', 'all'],
     queryFn: listAllSuppliers,
   })
-  const projectOptions = useMemo(
-    () => (currentUser?.projects ?? []).map((p) => ({ value: String(p.id), label: p.name })),
-    [currentUser],
-  )
+  const projectOptions = useMemo(() => {
+    const projects = currentUser?.allProjects
+      ? (projectsQuery.data ?? [])
+      : (currentUser?.projects ?? [])
+    return projects.map((p) => ({ value: String(p.id), label: p.name }))
+  }, [currentUser, projectsQuery.data])
   const supplierOptions = useMemo(
     () => (suppliersQuery.data ?? []).map((s) => ({ value: String(s.id), label: s.name })),
     [suppliersQuery.data],

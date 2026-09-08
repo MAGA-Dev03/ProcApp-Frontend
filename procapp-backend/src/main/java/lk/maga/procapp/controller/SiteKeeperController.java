@@ -32,11 +32,15 @@ public class SiteKeeperController {
     @GetMapping("/invoices")
     public PageResponse<InvoiceResponse> list(
             @RequestParam(required = false) Long projectId,
+            @RequestParam(required = false) Long supplierId,
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate receivedDateFrom,
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate receivedDateTo,
             Authentication authentication,
             Pageable pageable
     ) {
         Long userId = (Long) authentication.getPrincipal();
-        var page = invoiceService.listForSiteKeeper(userId, projectId, pageable);
+        var page = invoiceService.listForSiteKeeper(
+                userId, projectId, supplierId, receivedDateFrom, receivedDateTo, pageable);
         return PageResponse.from(page, inv -> new InvoiceResponse(inv, statusService));
     }
 

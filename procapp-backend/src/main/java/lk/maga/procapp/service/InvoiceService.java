@@ -238,19 +238,28 @@ public class InvoiceService {
         return invoiceRepository.save(inv);
     }
 
-    public Page<Invoice> listForSiteKeeper(Long userId, Long requestedProjectId, Pageable pageable) {
+    public Page<Invoice> listForSiteKeeper(
+            Long userId,
+            Long requestedProjectId,
+            Long supplierId,
+            LocalDate receivedDateFrom,
+            LocalDate receivedDateTo,
+            Pageable pageable) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid session user"));
         java.util.Set<Long> allowedProjectIds = user.isAllProjects()
                 ? null
-                : user.getProjects().stream().map(Project::getId).collect(java.util.stream.Collectors.toSet());    
+                : user.getProjects().stream().map(Project::getId).collect(java.util.stream.Collectors.toSet());
         Specification<Invoice> spec = Specification
                 .where(InvoiceSpecifications.scopedToProjectIds(allowedProjectIds))
-                .and(InvoiceSpecifications.withFetchedRelations());
-                
+                .and(InvoiceSpecifications.withFetchedRelations())
+                .and(InvoiceSpecifications.supplierId(supplierId))
+                .and(InvoiceSpecifications.receivedDateFrom(receivedDateFrom))
+                .and(InvoiceSpecifications.receivedDateTo(receivedDateTo));
+
         if (requestedProjectId != null) {
             spec = spec.and(InvoiceSpecifications.projectId(requestedProjectId));
-        }       
+        }
         return invoiceRepository.findAll(spec, pageable);
     }
 
