@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useLocation, useNavigate, type Location } from 'react-router-dom'
+import { Navigate, useLocation, useNavigate, type Location } from 'react-router-dom'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -14,10 +14,12 @@ import { useAuth } from './AuthContext'
 import { loginSchema, type LoginFormValues } from './validation'
 
 export function LoginPage() {
-  const { login, isAuthenticating } = useAuth()
+  const { login, isAuthenticating, currentUser } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
   const [authError, setAuthError] = useState<string | null>(null)
+
+  const redirectTo = (location.state as { from?: Location } | null)?.from?.pathname ?? '/profile'
 
   const {
     control,
@@ -32,14 +34,18 @@ export function LoginPage() {
   const onSubmit = async (values: LoginFormValues) => {
     setAuthError(null)
     try {
-      await login(values.email, values.password)
-      const from = (location.state as { from?: Location } | null)?.from?.pathname ?? '/profile'
-      navigate(from, { replace: true })
+      await login(values.email, values.password, values.rememberMe)
+      navigate(redirectTo, { replace: true })
     } catch (error) {
       setAuthError(
         error instanceof ApiError ? error.message : 'Something went wrong. Please try again.',
       )
     }
+  }
+
+  // Already signed in (persisted session, or navigated here by hand) — skip the form.
+  if (currentUser) {
+    return <Navigate to={redirectTo} replace />
   }
 
   return (

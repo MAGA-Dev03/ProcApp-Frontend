@@ -1,11 +1,12 @@
+import { clearStoredSession, loadStoredSession } from "@/lib/authStorage"
 import { ApiError } from "./apiError"
 
 const BASE_URL = 'http://localhost:8080'
 
-// Simple in-memory holder, updated by AuthContext on login/logout. Avoids
-// prop-drilling the token through every API call, and avoids relying on
-// localStorage, which AuthContext doesn't actually use.
-let currentToken: string | null = null
+// In-memory holder, updated by AuthContext on login/logout. Seeded from the
+// persisted session so a page refresh is authenticated on its very first
+// request, before any React effect has had a chance to run.
+let currentToken: string | null = loadStoredSession()?.token ?? null
 
 export function setAuthToken(token: string | null) {
   currentToken = token
@@ -13,6 +14,21 @@ export function setAuthToken(token: string | null) {
 
 function getToken(): string | null {
   return currentToken
+}
+
+/** A persisted token that the server has since rejected (expired/revoked) would
+ * otherwise leave the user on an authenticated route full of failed requests.
+ * Drop the dead session and bounce to login — except for the login call itself,
+ * which legitimately 401s on bad credentials. */
+function handleUnauthorized(path: string) {
+  if (path.startsWith('/api/auth/')) return
+  currentToken = null
+  clearStoredSession()
+  const base = import.meta.env.BASE_URL.replace(/\/$/, '')
+  const loginPath = `${base}/login`
+  if (window.location.pathname !== loginPath) {
+    window.location.assign(loginPath)
+  }
 }
 
 type QueryValue = string | number | boolean | undefined | null | (string | number) []
@@ -60,6 +76,7 @@ export async function http<T>(path: string, options: RequestOptions = {}): Promi
   const data = await res.json().catch(() => null)
 
   if (!res.ok) {
+    if (res.status === 401) handleUnauthorized(path)
     throw new ApiError(data?.message ?? 'Request failed', res.status, data?.fieldErrors)
   }
 
@@ -82,6 +99,7 @@ export async function httpUpload<T>(path: string, file: File): Promise<T> {
   const data = await res.json().catch(() => null)
 
   if (!res.ok) {
+    if (res.status === 401) handleUnauthorized(path)
     throw new ApiError(data?.message ?? 'Upload failed', res.status, data?.fieldErrors)
   }
 
@@ -98,6 +116,7 @@ export async function httpDownload(path: string): Promise<Blob> {
   })
 
   if (!res.ok) {
+    if (res.status === 401) handleUnauthorized(path)
     const data = await res.json().catch(() => null)
     throw new ApiError(data?.message ?? 'Download failed', res.status, data?.fieldErrors)
   }
