@@ -43,14 +43,22 @@ public class InvoiceController {
             @RequestParam(required = false) Boolean active,
             @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) LocalDate dateFrom,
             @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) LocalDate dateTo,
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) LocalDate receivedDateFrom,
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) LocalDate receivedDateTo,
+            @RequestParam(required = false) Boolean financeSubmitted,
+            @RequestParam(required = false) Boolean hasListNo,
             @RequestParam(required = false) BigDecimal valueMin,
             @RequestParam(required = false) BigDecimal valueMax,
             @RequestParam(required = false) String search,
             Pageable pageable
     ) {
+        // Frontend uses both names for the same concept: an invoice "submitted to finance"
+        // is one that carries a listNo. Accept either param.
+        Boolean submitted = financeSubmitted != null ? financeSubmitted : hasListNo;
         var page = invoiceService.list(
                 projectId, supplierId, invoiceType, invoiceSource, active,
-                dateFrom, dateTo, valueMin, valueMax, search, pageable
+                dateFrom, dateTo, receivedDateFrom, receivedDateTo, submitted,
+                valueMin, valueMax, search, pageable
         );
         return PageResponse.from(page, inv -> new InvoiceResponse(inv, statusService));
     }

@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { Clipboard, FileSpreadsheet, FileText, Printer } from 'lucide-react'
-import { listInvoicesForSiteKeeper, listSuppliers, markAttachmentViewed } from '@/api/client'
+import { listAllSuppliers, listInvoicesForSiteKeeper, markAttachmentViewed } from '@/api/client'
 import type { InvoiceWithRelations } from '@/types'
 import { PageHeader } from '@/components/PageHeader'
 import { DataTable } from '@/components/data-table'
@@ -46,14 +46,14 @@ export function SiteKeeperPage() {
   // client-editable filter) - the same scope the mock API enforces server-side below.
   const suppliersQuery = useQuery({
     queryKey: ['suppliers', 'all'],
-    queryFn: () => listSuppliers({ size: 100 }),
+    queryFn: listAllSuppliers,
   })
   const projectOptions = useMemo(
     () => (currentUser?.projects ?? []).map((p) => ({ value: String(p.id), label: p.name })),
     [currentUser],
   )
   const supplierOptions = useMemo(
-    () => (suppliersQuery.data?.content ?? []).map((s) => ({ value: String(s.id), label: s.name })),
+    () => (suppliersQuery.data ?? []).map((s) => ({ value: String(s.id), label: s.name })),
     [suppliersQuery.data],
   )
 

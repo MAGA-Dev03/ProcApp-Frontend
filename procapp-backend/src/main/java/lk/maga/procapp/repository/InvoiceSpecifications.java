@@ -35,7 +35,7 @@ public class InvoiceSpecifications {
 
     public static Specification<Invoice> invoiceSource(String source) {
         return (root, query, cb) -> (source == null || source.isBlank()) ? null :
-                cb.equal(root.get("invoiceType"), source);
+                cb.equal(root.get("invoiceSource"), source);
 
     }
 
@@ -52,6 +52,23 @@ public class InvoiceSpecifications {
     public static Specification<Invoice> invoiceDateTo(LocalDate to) {
         return (root, query, cb) -> to == null ? null :
                 cb.lessThanOrEqualTo(root.get("invoiceDate"), to);
+    }
+
+    public static Specification<Invoice> receivedDateFrom(LocalDate from) {
+        return (root, query, cb) -> from == null ? null :
+                cb.greaterThanOrEqualTo(root.get("receivedDate"), from);
+    }
+
+    public static Specification<Invoice> receivedDateTo(LocalDate to) {
+        return (root, query, cb) -> to == null ? null :
+                cb.lessThanOrEqualTo(root.get("receivedDate"), to);
+    }
+
+    /** Frontend sends financeSubmitted / hasListNo; both mean "has been batched to finance",
+     * which on this schema is exactly listNo IS NOT NULL. */
+    public static Specification<Invoice> financeSubmitted(Boolean submitted) {
+        return (root, query, cb) -> submitted == null ? null :
+                submitted ? cb.isNotNull(root.get("listNo")) : cb.isNull(root.get("listNo"));
     }
 
     public static Specification<Invoice> valueMin(BigDecimal min) {

@@ -55,6 +55,8 @@ public class InvoiceService {
     public Page<Invoice> list(
             Long projectId, Long supplierId, String invoiceType, String invoiceSource,
             Boolean active, LocalDate dateFrom, LocalDate dateTo,
+            LocalDate receivedDateFrom, LocalDate receivedDateTo,
+            Boolean financeSubmitted,
             BigDecimal valueMin, BigDecimal valueMax, String search,
             Pageable pageable
     ) {
@@ -65,6 +67,9 @@ public class InvoiceService {
                 .and(InvoiceSpecifications.active(active))
                 .and(InvoiceSpecifications.invoiceDateFrom(dateFrom))
                 .and(InvoiceSpecifications.invoiceDateTo(dateTo))
+                .and(InvoiceSpecifications.receivedDateFrom(receivedDateFrom))
+                .and(InvoiceSpecifications.receivedDateTo(receivedDateTo))
+                .and(InvoiceSpecifications.financeSubmitted(financeSubmitted))
                 .and(InvoiceSpecifications.valueMin(valueMin))
                 .and(InvoiceSpecifications.valueMax(valueMax))
                 .and(InvoiceSpecifications.search(search))

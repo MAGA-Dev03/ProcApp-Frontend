@@ -5,9 +5,9 @@ import { Plus } from 'lucide-react'
 import {
   ApiError,
   batchAddToFinance,
+  listAllProjects,
+  listAllSuppliers,
   listInvoices,
-  listProjects,
-  listSuppliers,
 } from '@/api/client'
 import type { InvoiceWithRelations } from '@/types'
 import { PageHeader } from '@/components/PageHeader'
@@ -42,19 +42,19 @@ export function AddToFinancePage() {
 
   const projectsQuery = useQuery({
     queryKey: ['projects', 'all'],
-    queryFn: () => listProjects({ size: 100 }),
+    queryFn: listAllProjects,
   })
   const suppliersQuery = useQuery({
     queryKey: ['suppliers', 'all'],
-    queryFn: () => listSuppliers({ size: 100 }),
+    queryFn: listAllSuppliers,
   })
 
   const projectOptions = useMemo(
-    () => (projectsQuery.data?.content ?? []).map((p) => ({ value: String(p.id), label: p.name })),
+    () => (projectsQuery.data ?? []).map((p) => ({ value: String(p.id), label: p.name })),
     [projectsQuery.data],
   )
   const supplierOptions = useMemo(
-    () => (suppliersQuery.data?.content ?? []).map((s) => ({ value: String(s.id), label: s.name })),
+    () => (suppliersQuery.data ?? []).map((s) => ({ value: String(s.id), label: s.name })),
     [suppliersQuery.data],
   )
 

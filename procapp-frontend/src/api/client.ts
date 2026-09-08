@@ -35,6 +35,7 @@ export {
 
 export {
   listProjects,
+  listAllProjects,
   getProject,
   createProject,
   updateProject,
@@ -44,6 +45,7 @@ export {
 
 export {
   listSuppliers,
+  listAllSuppliers,
   getSupplier,
   createSupplier,
   updateSupplier,

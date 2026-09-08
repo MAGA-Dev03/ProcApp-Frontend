@@ -24,6 +24,23 @@ export async function listProjects(params: ListProjectParams = {}): Promise<Page
 
 }
 
+/**
+ * Every project, walked page by page. Use this for form pickers / filter dropdowns, which need
+ * the full list rather than one capped page — a single `listProjects({ size: 100 })` silently
+ * drops everything past the first 100 rows (and Spring returns them in no particular order, so
+ * a freshly created project can land outside that window).
+ */
+export async function listAllProjects(): Promise<Project[]> {
+    const pageSize = 200
+    const all: Project[] = []
+    for (let page = 0; ; page++) {
+        const result = await listProjects({ page, size: pageSize, sort: 'name,asc' })
+        all.push(...result.content)
+        if (page >= result.totalPages - 1 || result.content.length === 0) break
+    }
+    return all
+}
+
 export async function getProject(id: number): Promise<Project> {
     return http<Project>(`/api/projects/${id}`)
 }

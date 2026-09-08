@@ -7,7 +7,7 @@ import {
   createRole,
   createUser,
   deleteUser,
-  listProjects,
+  listAllProjects,
   listRoles,
   listUsers,
   updateUser,
@@ -74,7 +74,7 @@ export function UsersPage() {
   })
   const projectsQuery = useQuery({
     queryKey: ['projects', 'all'],
-    queryFn: () => listProjects({ size: 100 }),
+    queryFn: listAllProjects,
   })
 
   const roleOptions = useMemo(
@@ -83,7 +83,7 @@ export function UsersPage() {
     [rolesQuery.data],
   )
   const projectOptions = useMemo(
-    () => (projectsQuery.data?.content ?? []).map((p) => ({ value: String(p.id), label: p.name })),
+    () => (projectsQuery.data ?? []).map((p) => ({ value: String(p.id), label: p.name })),
     [projectsQuery.data],
   )
 

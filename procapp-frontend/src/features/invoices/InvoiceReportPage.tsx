@@ -5,9 +5,9 @@ import { toast } from 'sonner'
 import { Clipboard, FileSpreadsheet, FileText, Printer } from 'lucide-react'
 import {
   getDistinctListNumbers,
+  listAllProjects,
+  listAllSuppliers,
   listInvoices,
-  listProjects,
-  listSuppliers,
   type ListInvoicesParams,
 } from '@/api/client'
 import type { InvoiceSource, InvoiceType } from '@/types'
@@ -86,11 +86,11 @@ export function InvoiceReportPage() {
 
   const projectsQuery = useQuery({
     queryKey: ['projects', 'all'],
-    queryFn: () => listProjects({ size: 100 }),
+    queryFn: listAllProjects,
   })
   const suppliersQuery = useQuery({
     queryKey: ['suppliers', 'all'],
-    queryFn: () => listSuppliers({ size: 100 }),
+    queryFn: listAllSuppliers,
   })
   const listNumbersQuery = useQuery({
     queryKey: ['invoices', 'distinct-list-numbers'],
@@ -98,11 +98,11 @@ export function InvoiceReportPage() {
   })
 
   const projectOptions = useMemo(
-    () => (projectsQuery.data?.content ?? []).map((p) => ({ value: String(p.id), label: p.name })),
+    () => (projectsQuery.data ?? []).map((p) => ({ value: String(p.id), label: p.name })),
     [projectsQuery.data],
   )
   const supplierOptions = useMemo(
-    () => (suppliersQuery.data?.content ?? []).map((s) => ({ value: String(s.id), label: s.name })),
+    () => (suppliersQuery.data ?? []).map((s) => ({ value: String(s.id), label: s.name })),
     [suppliersQuery.data],
   )
   const listNoOptions = useMemo(
