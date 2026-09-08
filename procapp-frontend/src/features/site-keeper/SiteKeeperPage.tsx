@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button'
 import { useAuth } from '@/features/auth'
 import { useDebouncedValue } from '@/hooks/useDebouncedValue'
 import { InvoicesFilters } from '@/features/invoices/InvoicesFilters'
+import { openSiteKeeperAttachment } from '@/features/invoices/attachmentDownload'
 import {
   copyRowsToClipboard,
   exportRowsToCsv,
@@ -85,11 +86,20 @@ export function SiteKeeperPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['invoices', 'site-keeper'] })
     },
-    onError: () => toast.error('Could not open the attachment. Please try again.'),
+    onError: () => toast.error('Could not update the attachment status. Please try again.'),
   })
 
   const columns = useMemo(
-    () => createSiteKeeperColumns((invoice) => markViewedMutation.mutate(invoice)),
+    () =>
+      createSiteKeeperColumns(async (invoice) => {
+        try {
+          await openSiteKeeperAttachment(invoice.id)
+        } catch {
+          toast.error('Could not open the attachment. Please try again.')
+          return
+        }
+        markViewedMutation.mutate(invoice)
+      }),
     [markViewedMutation],
   )
 

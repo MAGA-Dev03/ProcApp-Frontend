@@ -87,3 +87,20 @@ export async function httpUpload<T>(path: string, file: File): Promise<T> {
 
   return data as T
 }
+
+/** Binary GET for authenticated downloads (invoice attachments). The endpoint
+ * requires the bearer token, so a plain <a href> can't reach it — callers fetch
+ * the blob here and open it via URL.createObjectURL. */
+export async function httpDownload(path: string): Promise<Blob> {
+  const token = getToken()
+  const res = await fetch(`${BASE_URL}${path}`, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  })
+
+  if (!res.ok) {
+    const data = await res.json().catch(() => null)
+    throw new ApiError(data?.message ?? 'Download failed', res.status, data?.fieldErrors)
+  }
+
+  return res.blob()
+}

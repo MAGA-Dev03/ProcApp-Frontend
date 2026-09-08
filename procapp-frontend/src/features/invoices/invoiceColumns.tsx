@@ -1,9 +1,9 @@
 import type { ColumnDef } from '@tanstack/react-table'
-import { Download } from 'lucide-react'
 import type { InvoiceWithRelations } from '@/types'
 import { CurrencyDisplay } from '@/components/CurrencyDisplay'
 import { StatusBadge } from '@/components/StatusBadge'
 import { computeInvoiceStatus } from '@/lib/invoiceStatus'
+import { AttachmentCell } from './AttachmentCell'
 import { INVOICE_TYPE_OPTIONS } from './invoiceFormSchema'
 
 const INVOICE_TYPE_LABEL = Object.fromEntries(
@@ -56,15 +56,7 @@ export const invoiceColumns: ColumnDef<InvoiceWithRelations, unknown>[] = [
     enableSorting: false,
     cell: ({ row }) =>
       row.original.attachmentUrl ? (
-        <a
-          href={row.original.attachmentUrl}
-          target="_blank"
-          rel="noreferrer"
-          className="inline-flex items-center gap-1 text-primary hover:underline"
-          aria-label="Download attachment"
-        >
-          <Download className="size-4" />
-        </a>
+        <AttachmentCell invoiceId={row.original.id} />
       ) : (
         <span className="text-muted-foreground">—</span>
       ),

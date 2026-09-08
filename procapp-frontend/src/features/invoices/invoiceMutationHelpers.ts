@@ -12,6 +12,8 @@ export function monthToRange(month: string): { from: string; to: string } | null
 }
 
 export function toCreatePayload(values: InvoiceFormValues, authorUserId: number) {
+  // The attachment file is uploaded in a follow-up multipart call after the
+  // invoice exists (see uploadInvoiceAttachment) — never in this JSON body.
   return {
     invoiceType: values.invoiceType as InvoiceType,
     invoiceSource: values.invoiceSource as InvoiceSource,
@@ -26,7 +28,6 @@ export function toCreatePayload(values: InvoiceFormValues, authorUserId: number)
     grnNumber: values.grnNumber || undefined,
     grnReceivedDate: values.grnReceivedDate || undefined,
     remarks: values.remarks || undefined,
-    attachmentUrl: values.attachment ? URL.createObjectURL(values.attachment) : undefined,
     authorUserId,
   }
 }
@@ -52,9 +53,9 @@ export function toUpdatePayload(
     remarks: values.remarks || null,
     updatedByUserId,
   }
-  if (values.attachment) {
-    payload.attachmentUrl = URL.createObjectURL(values.attachment)
-  } else if (attachmentRemoved) {
+  // A newly picked file is uploaded separately (see uploadInvoiceAttachment).
+  // Here we only need to clear the reference when the user removed it.
+  if (!values.attachment && attachmentRemoved) {
     payload.attachmentUrl = null
   }
   return payload

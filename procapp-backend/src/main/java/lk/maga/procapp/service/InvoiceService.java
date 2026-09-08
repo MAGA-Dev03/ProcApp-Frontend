@@ -330,4 +330,36 @@ public class InvoiceService {
         }
         return fileStorageService.resolve(inv.getAttachmentUrl());
     }
+
+    /** Same as {@link #getOrThrow(Long)} but 404s when the invoice is outside the
+     * site keeper's assigned projects, so it can't be probed by id. */
+    public Invoice getForSiteKeeperOrThrow(Long userId, Long invoiceId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid session user"));
+        Invoice inv = getOrThrow(invoiceId);
+        if (user.isAllProjects()) {
+            return inv;
+        }
+        boolean inScope = user.getProjects().stream()
+                .anyMatch(p -> p.getId().equals(inv.getProject().getId()));
+        if (!inScope) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Invoice not found");
+        }
+        return inv;
+    }
+
+    @Transactional
+    public Invoice markAttachmentViewedForSiteKeeper(Long userId, Long invoiceId) {
+        Invoice inv = getForSiteKeeperOrThrow(userId, invoiceId);
+        inv.setAttachmentViewed(true);
+        return invoiceRepository.save(inv);
+    }
+
+    public java.nio.file.Path resolveAttachmentPathForSiteKeeper(Long userId, Long invoiceId) {
+        Invoice inv = getForSiteKeeperOrThrow(userId, invoiceId);
+        if (inv.getAttachmentUrl() == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "This invoice has no attachment");
+        }
+        return fileStorageService.resolve(inv.getAttachmentUrl());
+    }
 }

@@ -53,7 +53,7 @@ export function toReportRow(invoice: InvoiceWithRelations): ReportRow {
     'List No': invoice.listNo ?? '',
     'Finance Submit Date': invoice.financeSubmitDate ?? '',
     Remarks: invoice.remarks ?? '',
-    Attachment: invoice.attachmentUrl ?? '',
+    Attachment: invoice.attachmentUrl ? 'Yes' : '',
     Status: invoice.active ? 'Active' : 'Cancelled',
     Author: invoice.author.name,
     'Updated By': invoice.updatedBy?.name ?? '',

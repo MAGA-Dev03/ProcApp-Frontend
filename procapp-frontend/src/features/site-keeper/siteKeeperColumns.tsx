@@ -6,8 +6,8 @@ import { StatusBadge } from '@/components/StatusBadge'
 import { computeInvoiceStatus } from '@/lib/invoiceStatus'
 import { cn } from '@/lib/utils'
 
-/** Factory so the Attachment cell can call back into the page when the link is clicked (opens the
- * file and marks it viewed in the same action). */
+/** Factory so the Attachment cell can call back into the page when the button is clicked (downloads
+ * the file, opens it, and marks it viewed in the same action). */
 export function createSiteKeeperColumns(
   onViewAttachment: (invoice: InvoiceWithRelations) => void,
 ): ColumnDef<InvoiceWithRelations, unknown>[] {
@@ -65,16 +65,14 @@ export function createSiteKeeperColumns(
         }
 
         return (
-          <a
-            href={invoice.attachmentUrl}
-            target="_blank"
-            rel="noreferrer"
+          <button
+            type="button"
             onClick={() => onViewAttachment(invoice)}
             className="inline-flex items-center gap-1 rounded-md bg-red-600 px-2 py-1 text-xs font-medium text-white hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-400"
           >
             <Download className="size-3.5" />
             Attachment
-          </a>
+          </button>
         )
       },
     },

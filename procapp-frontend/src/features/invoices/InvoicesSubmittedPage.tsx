@@ -13,6 +13,7 @@ import {
   listInvoices,
   recordGrn,
   updateInvoice,
+  uploadInvoiceAttachment,
 } from '@/api/client'
 import type { InvoiceWithRelations } from '@/types'
 import { PageHeader } from '@/components/PageHeader'
@@ -98,7 +99,7 @@ export function InvoicesSubmittedPage() {
   }
 
   const updateMutation = useMutation({
-    mutationFn: ({
+    mutationFn: async ({
       id,
       values,
       attachmentRemoved,
@@ -106,7 +107,16 @@ export function InvoicesSubmittedPage() {
       id: number
       values: InvoiceFormValues
       attachmentRemoved: boolean
-    }) => updateInvoice(id, toUpdatePayload(values, currentUser!.id, attachmentRemoved)),
+    }) => {
+      const updated = await updateInvoice(
+        id,
+        toUpdatePayload(values, currentUser!.id, attachmentRemoved),
+      )
+      if (values.attachment) {
+        await uploadInvoiceAttachment(id, values.attachment)
+      }
+      return updated
+    },
     onSuccess: () => {
       invalidateInvoices()
       setEditingInvoice(null)

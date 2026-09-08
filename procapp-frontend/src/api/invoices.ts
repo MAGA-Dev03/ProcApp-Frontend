@@ -6,7 +6,7 @@ import type {
   Page,
   PageParams,
 } from '@/types'
-import { http } from './http'
+import { http, httpDownload, httpUpload } from './http'
 
 export interface ListInvoicesParams extends PageParams {
   projectId?: number
@@ -97,9 +97,32 @@ export async function listInvoicesForSiteKeeper(
   return { ...page, content: page.content.map(adaptInvoice) }
 }
 
-export async function markAttachmentViewed(id: number, _updatedByUserId: number): Promise<Invoice> {
-  const raw = await http<any>(`/api/invoices/${id}/attachment-viewed`, { method: 'POST' })
+/** Uploads a single file as the invoice's attachment (multipart). The backend
+ * stores it on disk and sets attachmentUrl to the stored key. */
+export async function uploadInvoiceAttachment(
+  id: number,
+  file: File,
+): Promise<InvoiceWithRelations> {
+  const raw = await httpUpload<any>(`/api/invoices/${id}/attachment`, file)
   return adaptInvoice(raw)
+}
+
+/** Fetches the attachment bytes for an invoice. Callers open the returned blob
+ * in a new tab — the endpoint needs the bearer token so a direct link won't work. */
+export async function downloadInvoiceAttachment(id: number): Promise<Blob> {
+  return httpDownload(`/api/invoices/${id}/attachment`)
+}
+
+/** Site-keeper only: mark an invoice's attachment as viewed. Uses the
+ * site-keeper-scoped endpoint (the /api/invoices tree is procurement-only). */
+export async function markAttachmentViewed(id: number, _updatedByUserId: number): Promise<Invoice> {
+  const raw = await http<any>(`/api/site-keeper/invoices/${id}/attachment-viewed`, { method: 'POST' })
+  return adaptInvoice(raw)
+}
+
+/** Site-keeper variant of downloadInvoiceAttachment, scoped to the keeper's projects. */
+export async function downloadSiteKeeperAttachment(id: number): Promise<Blob> {
+  return httpDownload(`/api/site-keeper/invoices/${id}/attachment`)
 }
 
 export async function getInvoice(id: number): Promise<InvoiceWithRelations> {
@@ -165,10 +188,10 @@ export async function batchAddToFinance(
   invoiceIds: number[],
   _payload: BatchAddToFinancePayload,
 ): Promise<Invoice[]> {
-  const result = await http<{ listNo: string; invoiceCount: number }>(
-    '/api/invoices/batch-add-to-finance',
-    { method: 'POST', body: { invoiceIds } },
-  )
+  await http<{ listNo: string; invoiceCount: number }>('/api/invoices/batch-add-to-finance', {
+    method: 'POST',
+    body: { invoiceIds },
+  })
   // Backend returns a summary, not the full invoice list — re-fetch the
   // affected invoices so this function's return type still matches what
   // callers expect.

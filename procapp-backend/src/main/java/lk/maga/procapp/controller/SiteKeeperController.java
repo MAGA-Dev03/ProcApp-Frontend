@@ -9,6 +9,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -36,6 +38,30 @@ public class SiteKeeperController {
         Long userId = (Long) authentication.getPrincipal();
         var page = invoiceService.listForSiteKeeper(userId, projectId, pageable);
         return PageResponse.from(page, inv -> new InvoiceResponse(inv, statusService));
-    }        
-            
+    }
+
+    @PostMapping("/invoices/{id}/attachment-viewed")
+    public InvoiceResponse markAttachmentViewed(@PathVariable Long id, Authentication authentication) {
+        Long userId = (Long) authentication.getPrincipal();
+        return new InvoiceResponse(
+                invoiceService.markAttachmentViewedForSiteKeeper(userId, id), statusService);
+    }
+
+    @GetMapping("/invoices/{id}/attachment")
+    public org.springframework.http.ResponseEntity<org.springframework.core.io.Resource> downloadAttachment(
+            @PathVariable Long id, Authentication authentication
+    ) throws java.io.IOException {
+        Long userId = (Long) authentication.getPrincipal();
+        java.nio.file.Path path = invoiceService.resolveAttachmentPathForSiteKeeper(userId, id);
+        org.springframework.core.io.Resource resource =
+                new org.springframework.core.io.UrlResource(path.toUri());
+        String contentType = java.nio.file.Files.probeContentType(path);
+        if (contentType == null) contentType = "application/octet-stream";
+
+        return org.springframework.http.ResponseEntity.ok()
+                .contentType(org.springframework.http.MediaType.parseMediaType(contentType))
+                .header(org.springframework.http.HttpHeaders.CONTENT_DISPOSITION,
+                        "inline; filename=\"" + path.getFileName() + "\"")
+                .body(resource);
+    }
 }
