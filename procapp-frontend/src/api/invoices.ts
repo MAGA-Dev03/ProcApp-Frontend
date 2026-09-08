@@ -200,12 +200,8 @@ export async function batchAddToFinance(
 }
 
 export async function getDistinctListNumbers(): Promise<string[]> {
-  const page = await http<Page<any>>('/api/invoices', {
-    params: { hasListNo: true, size: 1000 },
-  })
-  const listNumbers = new Set<string>()
-  for (const inv of page.content) {
-    if (inv.listNo) listNumbers.add(inv.listNo)
-  }
-  return [...listNumbers].sort().reverse()
+  // Dedicated endpoint returns every distinct list number, newest first.
+  // The old approach paged the first 1000 invoices and silently dropped
+  // any batch numbers beyond that window.
+  return http<string[]>('/api/invoices/list-numbers')
 }

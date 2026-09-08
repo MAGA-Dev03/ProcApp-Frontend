@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface InvoiceRepository extends JpaRepository<Invoice, Long>, JpaSpecificationExecutor<Invoice> {
@@ -40,4 +41,13 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long>, JpaSpec
     // where the sequence reset daily instead of monthly.
     @Query(value = "SELECT COUNT(DISTINCT list_no) FROM invoices WHERE list_no LIKE :prefix", nativeQuery = true)
     long countDistinctListNoWithPrefix(@Param("prefix") String prefix);
+
+    // Every finance batch number ever assigned, newest first — powers the
+    // report screen's List No filter. A dedicated DISTINCT query so the
+    // option list is complete regardless of how many invoices exist; the
+    // old approach paged the first N invoices and missed the rest.
+    @Query("SELECT DISTINCT i.listNo FROM Invoice i " +
+            "WHERE i.listNo IS NOT NULL AND i.listNo <> '' " +
+            "ORDER BY i.listNo DESC")
+    List<String> findDistinctListNumbers();
 }

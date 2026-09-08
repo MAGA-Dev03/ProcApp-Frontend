@@ -81,6 +81,11 @@ public class InvoiceService {
         return invoiceRepository.findAll(spec, pageable);
     }
 
+    /** Every finance batch number ever assigned, newest first — for the report screen's List No filter. */
+    public List<String> distinctListNumbers() {
+        return invoiceRepository.findDistinctListNumbers();
+    }
+
     public Invoice getOrThrow(Long id) {
         return invoiceRepository.findByIdWithRelations(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Invoice not found"));

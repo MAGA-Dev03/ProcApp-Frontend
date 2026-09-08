@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/invoices")
@@ -65,6 +66,11 @@ public class InvoiceController {
                 valueMin, valueMax, search, dateType, dateExact, reportStatus, listNo, pageable
         );
         return PageResponse.from(page, inv -> new InvoiceResponse(inv, statusService));
+    }
+
+    @GetMapping("/list-numbers")
+    public List<String> listNumbers() {
+        return invoiceService.distinctListNumbers();
     }
 
     @GetMapping("/{id:\\d+}")
