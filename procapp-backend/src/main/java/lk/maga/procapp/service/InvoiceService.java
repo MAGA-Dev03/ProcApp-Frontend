@@ -58,6 +58,7 @@ public class InvoiceService {
             LocalDate receivedDateFrom, LocalDate receivedDateTo,
             Boolean financeSubmitted,
             BigDecimal valueMin, BigDecimal valueMax, String search,
+            String dateType, LocalDate dateExact, String reportStatus, String listNo,
             Pageable pageable
     ) {
         Specification<Invoice> spec = Specification.where(InvoiceSpecifications.projectId(projectId))
@@ -73,6 +74,9 @@ public class InvoiceService {
                 .and(InvoiceSpecifications.valueMin(valueMin))
                 .and(InvoiceSpecifications.valueMax(valueMax))
                 .and(InvoiceSpecifications.search(search))
+                .and(InvoiceSpecifications.dateExact(dateType, dateExact))
+                .and(InvoiceSpecifications.reportStatus(reportStatus))
+                .and(InvoiceSpecifications.listNo(listNo))
                 .and(InvoiceSpecifications.withFetchedRelations());
         return invoiceRepository.findAll(spec, pageable);
     }

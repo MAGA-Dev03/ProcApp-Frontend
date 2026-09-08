@@ -71,6 +71,42 @@ public class InvoiceSpecifications {
                 submitted ? cb.isNotNull(root.get("listNo")) : cb.isNull(root.get("listNo"));
     }
 
+    /** Exact match on the finance batch number - the report screen's List No filter. */
+    public static Specification<Invoice> listNo(String listNo) {
+        return (root, query, cb) -> (listNo == null || listNo.isBlank()) ? null :
+                cb.equal(root.get("listNo"), listNo);
+    }
+
+    private static final Set<String> EXACT_DATE_FIELDS =
+            Set.of("invoiceDate", "receivedDate", "grnReceivedDate", "financeSubmitDate");
+
+    /** Exact-day match against the date field named by dateType - the report screen's
+     * Date Type picker plus the "On date" input. Unknown field names are ignored. */
+    public static Specification<Invoice> dateExact(String dateType, LocalDate date) {
+        return (root, query, cb) -> (date == null || dateType == null || !EXACT_DATE_FIELDS.contains(dateType))
+                ? null : cb.equal(root.get(dateType), date);
+    }
+
+    /** The report screen's Report Status filter. Mirrors InvoiceStatusService.compute but
+     * expressed as a query predicate, and (like the report) ignores the cancelled state. */
+    public static Specification<Invoice> reportStatus(String status) {
+        return (root, query, cb) -> {
+            if (status == null || status.isBlank()) return null;
+            var grnNumber = root.<String>get("grnNumber");
+            var hasGrn = cb.and(cb.isNotNull(grnNumber), cb.notEqual(grnNumber, ""));
+            return switch (status) {
+                case "NOT_SUBMITTED" -> cb.or(cb.isNull(grnNumber), cb.equal(grnNumber, ""));
+                case "GRN_PENDING" -> cb.and(hasGrn, cb.isNull(root.get("grnReceivedDate")));
+                case "GRN_RECEIVED" -> cb.and(
+                        hasGrn,
+                        cb.isNotNull(root.get("grnReceivedDate")),
+                        cb.isNull(root.get("listNo")));
+                case "SUBMITTED" -> cb.isNotNull(root.get("listNo"));
+                default -> null;
+            };
+        };
+    }
+
     public static Specification<Invoice> valueMin(BigDecimal min) {
         return (root, query, cb) -> min == null ? null :
                 cb.greaterThanOrEqualTo(root.get("value"), min);

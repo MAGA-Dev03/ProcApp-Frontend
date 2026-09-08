@@ -50,6 +50,10 @@ public class InvoiceController {
             @RequestParam(required = false) BigDecimal valueMin,
             @RequestParam(required = false) BigDecimal valueMax,
             @RequestParam(required = false) String search,
+            @RequestParam(required = false) String dateType,
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) LocalDate dateExact,
+            @RequestParam(required = false) String reportStatus,
+            @RequestParam(required = false) String listNo,
             Pageable pageable
     ) {
         // Frontend uses both names for the same concept: an invoice "submitted to finance"
@@ -58,7 +62,7 @@ public class InvoiceController {
         var page = invoiceService.list(
                 projectId, supplierId, invoiceType, invoiceSource, active,
                 dateFrom, dateTo, receivedDateFrom, receivedDateTo, submitted,
-                valueMin, valueMax, search, pageable
+                valueMin, valueMax, search, dateType, dateExact, reportStatus, listNo, pageable
         );
         return PageResponse.from(page, inv -> new InvoiceResponse(inv, statusService));
     }
