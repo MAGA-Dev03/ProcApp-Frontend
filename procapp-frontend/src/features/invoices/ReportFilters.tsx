@@ -1,6 +1,5 @@
-import { useState } from 'react'
-import { Check, ChevronsUpDown } from 'lucide-react'
 import type { ComboboxOption } from '@/components/form'
+import { FilterCombobox } from '@/components/form'
 import {
   Select,
   SelectContent,
@@ -10,23 +9,11 @@ import {
 } from '@/components/ui/select'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Button } from '@/components/ui/button'
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from '@/components/ui/command'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { cn } from '@/lib/utils'
 import { INVOICE_SOURCE_OPTIONS, INVOICE_TYPE_OPTIONS } from './invoiceFormSchema'
 
 const ALL_VALUE = '__all__'
 
 const DATE_TYPE_OPTIONS = [
-  
   { value: 'invoiceDate', label: 'Invoice Date' },
   { value: 'receivedDate', label: 'Invoice Received date' },
   { value: 'grnReceivedDate', label: 'GRN Received date' },
@@ -78,80 +65,6 @@ function FilterSelect({
           ))}
         </SelectContent>
       </Select>
-    </div>
-  )
-}
-
-function ListNoFilter({
-  value,
-  onChange,
-  options,
-}: {
-  value: string
-  onChange: (value: string) => void
-  options: ComboboxOption[]
-}) {
-  const [open, setOpen] = useState(false)
-  const selected = options.find((option) => option.value === value)
-
-  return (
-    <div className="space-y-1.5">
-      <Label htmlFor="filter-list-no">List No</Label>
-      <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger asChild>
-          <Button
-            id="filter-list-no"
-            type="button"
-            variant="outline"
-            role="combobox"
-            aria-expanded={open}
-            className="w-48 justify-between font-normal"
-          >
-            <span className={cn('truncate', !selected && 'text-muted-foreground')}>
-              {selected ? selected.label : 'All list numbers'}
-            </span>
-            <ChevronsUpDown className="size-4 shrink-0 opacity-50" />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-(--radix-popover-trigger-width) p-0" align="start">
-          <Command>
-            <CommandInput placeholder="Search list numbers…" />
-            <CommandList>
-              <CommandEmpty>No list numbers found.</CommandEmpty>
-              <CommandGroup>
-                <CommandItem
-                  value="All list numbers"
-                  onSelect={() => {
-                    onChange('')
-                    setOpen(false)
-                  }}
-                >
-                  <Check className={cn('mr-2 size-4', !value ? 'opacity-100' : 'opacity-0')} />
-                  All list numbers
-                </CommandItem>
-                {options.map((option) => (
-                  <CommandItem
-                    key={option.value}
-                    value={option.label}
-                    onSelect={() => {
-                      onChange(option.value)
-                      setOpen(false)
-                    }}
-                  >
-                    <Check
-                      className={cn(
-                        'mr-2 size-4',
-                        option.value === value ? 'opacity-100' : 'opacity-0',
-                      )}
-                    />
-                    {option.label}
-                  </CommandItem>
-                ))}
-              </CommandGroup>
-            </CommandList>
-          </Command>
-        </PopoverContent>
-      </Popover>
     </div>
   )
 }
@@ -208,21 +121,25 @@ export function ReportFilters({
         placeholder="All sources"
         width="w-36"
       />
-      <FilterSelect
+      <FilterCombobox
         id="filter-project"
         label="Project"
         value={value.projectId}
         onChange={(v) => set('projectId', v)}
         options={projectOptions}
-        placeholder="All projects"
+        allLabel="All projects"
+        searchPlaceholder="Search projects…"
+        emptyMessage="No projects found."
       />
-      <FilterSelect
+      <FilterCombobox
         id="filter-supplier"
         label="Supplier"
         value={value.supplierId}
         onChange={(v) => set('supplierId', v)}
         options={supplierOptions}
-        placeholder="All suppliers"
+        allLabel="All suppliers"
+        searchPlaceholder="Search suppliers…"
+        emptyMessage="No suppliers found."
       />
 
       <div className="space-y-1.5">
@@ -274,10 +191,15 @@ export function ReportFilters({
         options={ACTIVE_OPTIONS}
         placeholder="All"
       />
-      <ListNoFilter
+      <FilterCombobox
+        id="filter-list-no"
+        label="List No"
         value={value.listNo}
         onChange={(v) => set('listNo', v)}
         options={listNoOptions}
+        allLabel="All list numbers"
+        searchPlaceholder="Search list numbers…"
+        emptyMessage="No list numbers found."
       />
     </div>
   )
