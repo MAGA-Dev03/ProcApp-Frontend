@@ -26,10 +26,11 @@ import { INVOICE_SOURCE_OPTIONS, INVOICE_TYPE_OPTIONS } from './invoiceFormSchem
 const ALL_VALUE = '__all__'
 
 const DATE_TYPE_OPTIONS = [
+  
   { value: 'invoiceDate', label: 'Invoice Date' },
-  { value: 'receivedDate', label: 'Received Date' },
-  { value: 'grnReceivedDate', label: 'GRN Received Date' },
-  { value: 'financeSubmitDate', label: 'Finance Submit Date' },
+  { value: 'receivedDate', label: 'Invoice Received date' },
+  { value: 'grnReceivedDate', label: 'GRN Received date' },
+  { value: 'financeSubmitDate', label: 'Finance Submited date' },
 ]
 
 const STATUS_OPTIONS = [
@@ -240,9 +241,9 @@ export function ReportFilters({
           id="filter-date-type"
           label="Date Type"
           value={value.dateType}
-          onChange={(v) => set('dateType', v || 'invoiceDate')}
+          onChange={(v) => set('dateType', v)}
           options={DATE_TYPE_OPTIONS}
-          placeholder="Invoice Date"
+          placeholder="Select Date type"
           width="w-40"
         />
         <div className="space-y-1.5">
