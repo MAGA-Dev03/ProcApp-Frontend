@@ -121,10 +121,15 @@ public class InvoiceSpecifications {
         return (root, query, cb) -> {
             if (term == null || term.isBlank()) return null;
             String pattern = "%" + term.toLowerCase() + "%";
+            var project = root.join("project", JoinType.LEFT);
+            var supplier = root.join("supplier", JoinType.LEFT);
             return cb.or(
                 cb.like(cb.lower(root.get("invoiceNumber")), pattern),
                 cb.like(cb.lower(root.get("purchaseOrderNumber")), pattern),
-                cb.like(cb.lower(root.get("pioNumber")), pattern)
+                cb.like(cb.lower(root.get("pioNumber")), pattern),
+                cb.like(cb.lower(project.get("name")), pattern),
+                cb.like(cb.lower(project.get("code")), pattern),
+                cb.like(cb.lower(supplier.get("name")), pattern)
             );
         };
     }

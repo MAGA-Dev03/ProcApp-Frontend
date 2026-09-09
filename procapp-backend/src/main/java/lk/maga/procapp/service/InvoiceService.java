@@ -253,6 +253,7 @@ public class InvoiceService {
             Long supplierId,
             LocalDate receivedDateFrom,
             LocalDate receivedDateTo,
+            String search,
             Pageable pageable) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid session user"));
@@ -264,7 +265,8 @@ public class InvoiceService {
                 .and(InvoiceSpecifications.withFetchedRelations())
                 .and(InvoiceSpecifications.supplierId(supplierId))
                 .and(InvoiceSpecifications.receivedDateFrom(receivedDateFrom))
-                .and(InvoiceSpecifications.receivedDateTo(receivedDateTo));
+                .and(InvoiceSpecifications.receivedDateTo(receivedDateTo))
+                .and(InvoiceSpecifications.search(search));
 
         if (requestedProjectId != null) {
             spec = spec.and(InvoiceSpecifications.projectId(requestedProjectId));
