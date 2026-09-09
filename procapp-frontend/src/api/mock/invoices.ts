@@ -171,12 +171,18 @@ export async function listInvoices(
   }
   if (params.search) {
     const search = params.search.toLowerCase()
-    results = results.filter(
-      (inv) =>
+    results = results.filter((inv) => {
+      const project = db.projects.find((p) => p.id === inv.projectId)
+      const supplier = db.suppliers.find((s) => s.id === inv.supplierId)
+      return (
         inv.invoiceNumber.toLowerCase().includes(search) ||
         inv.purchaseOrderNumber.toLowerCase().includes(search) ||
-        (inv.listNo ?? '').toLowerCase().includes(search),
-    )
+        (inv.listNo ?? '').toLowerCase().includes(search) ||
+        (project?.name.toLowerCase().includes(search) ?? false) ||
+        (project?.code.toLowerCase().includes(search) ?? false) ||
+        (supplier?.name.toLowerCase().includes(search) ?? false)
+      )
+    })
   }
 
   const sorted = [...results].sort((a, b) => (a.invoiceDate < b.invoiceDate ? 1 : -1))

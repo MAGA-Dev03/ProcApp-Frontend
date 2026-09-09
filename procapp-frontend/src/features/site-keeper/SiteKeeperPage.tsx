@@ -44,6 +44,8 @@ export function SiteKeeperPage() {
   const [supplierFilter, setSupplierFilter] = useState('')
   const [monthFilter, setMonthFilter] = useState('')
   const debouncedMonth = useDebouncedValue(monthFilter, 300)
+  const [search, setSearch] = useState('')
+  const debouncedSearch = useDebouncedValue(search, 300)
   const [pageIndex, setPageIndex] = useState(0)
   const [isExporting, setIsExporting] = useState(false)
 
@@ -77,7 +79,7 @@ export function SiteKeeperPage() {
       'invoices',
       'site-keeper',
       currentUser?.id,
-      { projectFilter, supplierFilter, monthRange, pageIndex },
+      { projectFilter, supplierFilter, monthRange, debouncedSearch, pageIndex },
     ],
     queryFn: () =>
       listInvoicesForSiteKeeper(currentUser!.id, {
@@ -85,6 +87,7 @@ export function SiteKeeperPage() {
         supplierId: supplierFilter ? Number(supplierFilter) : undefined,
         receivedDateFrom: monthRange?.from,
         receivedDateTo: monthRange?.to,
+        search: debouncedSearch || undefined,
         page: pageIndex,
         size: PAGE_SIZE,
       }),
@@ -121,6 +124,7 @@ export function SiteKeeperPage() {
       supplierId: supplierFilter ? Number(supplierFilter) : undefined,
       receivedDateFrom: monthRange?.from,
       receivedDateTo: monthRange?.to,
+      search: debouncedSearch || undefined,
       page: 0,
       size: 5000,
     })
@@ -230,6 +234,12 @@ export function SiteKeeperPage() {
           pageIndex={pageIndex}
           pageSize={PAGE_SIZE}
           onPageChange={setPageIndex}
+          searchValue={search}
+          onSearchChange={(value) => {
+            setSearch(value)
+            setPageIndex(0)
+          }}
+          searchPlaceholder="Search project, supplier, invoice #…"
           getRowId={(row) => String(row.id)}
           isLoading={invoicesQuery.isLoading}
           isError={invoicesQuery.isError}
